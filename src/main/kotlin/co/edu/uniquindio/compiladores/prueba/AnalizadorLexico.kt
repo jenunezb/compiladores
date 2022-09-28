@@ -33,11 +33,9 @@ class AnalizadorLexico(var codigoFuente:String) {
             if(esCadena()) continue
             if(esBoolean()) continue
             if(esOperadorLogico())continue
+            if(esOperadorAsignacion()) continue
             if (esOperadorAritmetico()) continue
 
-            /**
-             * IDENTIFICADORES
-             */
 
             if(esIdentificadorTipoEntero()) continue
             if(esIdentificadorTipoCadena()) continue
@@ -46,11 +44,10 @@ class AnalizadorLexico(var codigoFuente:String) {
             if(esIdentificadorTipoCaracter()) continue
             if(esOperadorIncrementoDecremento()) continue
             if(esOperadorRelacional()) continue
+            if(esFindeSentencia()) continue
+            if(esSeparador()) continue
+            if(esComentarioBloque()) continue
 
-
-            /**
-             * PALABRAS RESERVADAS
-             */
             if(esPalabraReservadaClase())continue
 
             //ALMACENAR LOS TOKEN
@@ -427,7 +424,192 @@ class AnalizadorLexico(var codigoFuente:String) {
         return false
     }
 
-    
+    //OPERADORES DE ASIGNACION
+    fun esOperadorAsignacion(): Boolean {
+        var lexema = ""
+        if (caracterActual == '=' || caracterActual == '+' || caracterActual == '-' || caracterActual == '*' || caracterActual == '/'|| caracterActual == '%') {
+
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+
+            if (caracterActual == '=') {
+                obtenerSiguienteCaracter()
+                if (caracterActual == '=') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(
+                        lexema,
+                        Categoria.OPERADOR_ASIGNACION, filaInicial, columnaInicial
+                    )
+                    return true
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else  if (caracterActual == '+') {
+                obtenerSiguienteCaracter()
+                if (caracterActual == '=') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(
+                        lexema,
+                        Categoria.OPERADOR_ASIGNACION, filaInicial, columnaInicial
+                    )
+                    return true
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else if (caracterActual == '-') {
+                obtenerSiguienteCaracter()
+                if (caracterActual == '=') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(
+                        lexema,
+                        Categoria.OPERADOR_ASIGNACION, filaInicial, columnaInicial
+                    )
+                    return true
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            }else  if (caracterActual == '*') {
+                obtenerSiguienteCaracter()
+                if (caracterActual == '=') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(
+                        lexema,
+                        Categoria.OPERADOR_ASIGNACION, filaInicial, columnaInicial
+                    )
+                    return true
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            }else  if (caracterActual == '/') {
+                obtenerSiguienteCaracter()
+                if (caracterActual == '=') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(
+                        lexema,
+                        Categoria.OPERADOR_ASIGNACION, filaInicial, columnaInicial
+                    )
+                    return true
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            }else  if (caracterActual == '%') {
+                obtenerSiguienteCaracter()
+                if (caracterActual == '=') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(
+                        lexema,
+                        Categoria.OPERADOR_ASIGNACION, filaInicial, columnaInicial
+                    )
+                    return true
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            }
+        }
+
+        //RI
+        return false
+    }
+
+    // FIN DE SENTENCIA ;
+    fun esFindeSentencia(): Boolean {
+        var lexema = ""
+        if (caracterActual == '_') {
+
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            almacenarToken(
+                lexema,
+                Categoria.FINDESENTENCIA, filaInicial, columnaInicial
+            )
+            return true
+        }
+        //RI
+        return false
+    }
+
+    // SEPARADOR ,
+    fun esSeparador(): Boolean {
+        var lexema = ""
+        if (caracterActual == '/') {
+
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            almacenarToken(
+                lexema,
+                Categoria.SEPARADOR, filaInicial, columnaInicial
+            )
+            return true
+        }
+        //RI
+        return false
+    }
+
+    //Verifica si el token es un comentario de bloque
+    fun esComentarioBloque(): Boolean {
+        var lexema = ""
+        if (caracterActual == '#') {
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == '#') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                    if (caracterActual != '#') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        while (caracterActual != '#' && caracterActual != finCodigo) {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                        }
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == '#') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            almacenarToken(
+                                lexema,
+                                Categoria.COMENTARIO_BLOQUE, filaInicial, columnaInicial
+                            )
+                            return true
+                        } else {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+        }
+        //RI
+        return false
+    }
 
     /**
      * IDENTIFICADORES
