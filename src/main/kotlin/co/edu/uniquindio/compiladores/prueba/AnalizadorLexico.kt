@@ -33,6 +33,7 @@ class AnalizadorLexico(var codigoFuente:String) {
             if(esCadena()) continue
             if(esBoolean()) continue
             if(esOperadorLogico())continue
+            if (esOperadorAritmetico()) continue
 
             /**
              * IDENTIFICADORES
@@ -43,6 +44,8 @@ class AnalizadorLexico(var codigoFuente:String) {
             if(esIdentificadorTipoBooleano()) continue
             if(esIdentificadorTipoDecimal()) continue
             if(esIdentificadorTipoCaracter()) continue
+            if(esOperadorIncrementoDecremento()) continue
+            if(esOperadorRelacional()) continue
 
 
             /**
@@ -297,6 +300,134 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
+
+    fun esOperadorAritmetico(): Boolean {
+        var lexema = ""
+        if (caracterActual == '+' || caracterActual == '-' || caracterActual == '*' || caracterActual == '/') {
+            System.out.println(caracterActual)
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            almacenarToken(
+                lexema,
+                Categoria.OPERADOR_ARITMETICO, filaInicial, columnaInicial
+            )
+            return true
+        }
+        return false
+    }
+
+    //OPERADORES INCREMENTO,DECREMENTO
+    fun esOperadorIncrementoDecremento(): Boolean {
+        var lexema = ""
+        if (caracterActual == '↑' || caracterActual=='↓'){
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            if (caracterActual == '↑') {
+
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                almacenarToken(
+                    lexema,
+                    Categoria.OPERADOR_INCREMENTO, filaInicial, columnaInicial
+                )
+                return true
+            } else if (caracterActual == '↓') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                almacenarToken(
+                    lexema,
+                    Categoria.OPERADOR_DECREMENTO, filaInicial, columnaInicial
+                )
+                return true
+            }
+        }
+        //RI
+        return false
+    }
+
+    //Verifica si el token es un Operador_relacional
+    fun esOperadorRelacional(): Boolean {
+        var lexema = ""
+        if (caracterActual == '→' || caracterActual == '←' || caracterActual == '='|| caracterActual == '!'  ) {
+
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+
+            if (caracterActual == '←') {
+                obtenerSiguienteCaracter()
+                if (caracterActual == '=') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(
+                        lexema,
+                        Categoria.OPERADOR_RELACIONAL, filaInicial, columnaInicial
+                    )
+                    return true
+                } else {
+                    almacenarToken(
+                        lexema,
+                        Categoria.OPERADOR_RELACIONAL, filaInicial, columnaInicial
+                    )
+                    return true
+                }
+            }else if (caracterActual == '→') {
+                obtenerSiguienteCaracter()
+                if (caracterActual == '=') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(
+                        lexema,
+                        Categoria.OPERADOR_RELACIONAL, filaInicial, columnaInicial
+                    )
+                    return true
+                } else {
+                    almacenarToken(
+                        lexema,
+                        Categoria.OPERADOR_RELACIONAL, filaInicial, columnaInicial
+                    )
+                    return true
+                }
+            }else if (caracterActual == '=') {
+                obtenerSiguienteCaracter()
+                if (caracterActual == '=') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(
+                        lexema,
+                        Categoria.OPERADOR_RELACIONAL, filaInicial, columnaInicial
+                    )
+                    return true
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            }else if (caracterActual == '!') {
+                obtenerSiguienteCaracter()
+                if (caracterActual == '=') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(
+                        lexema,
+                        Categoria.OPERADOR_RELACIONAL, filaInicial, columnaInicial
+                    )
+                    return true
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            }
+        }
+        //RI
+        return false
+    }
+
+    
 
     /**
      * IDENTIFICADORES

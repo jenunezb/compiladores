@@ -1,7 +1,7 @@
 package co.edu.uniquindio.compiladores.prueba
 
 fun main(){
-    val lexico = AnalizadorLexico(": (a+8/-15 n"   )
+    val lexico = AnalizadorLexico("= == ! !="  )
     lexico.analizar()
     println(lexico.listaTokens)
 }
