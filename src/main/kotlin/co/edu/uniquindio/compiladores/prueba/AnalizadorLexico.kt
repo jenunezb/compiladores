@@ -47,6 +47,7 @@ class AnalizadorLexico(var codigoFuente:String) {
             if(esFindeSentencia()) continue
             if(esSeparador()) continue
             if(esComentarioBloque()) continue
+            if(esComentarioLinea()) continue
 
             if(esPalabraReservadaClase())continue
 
@@ -606,6 +607,37 @@ class AnalizadorLexico(var codigoFuente:String) {
                 hacerBT(posicionInicial, filaInicial, columnaInicial)
                 return false
             }
+        }
+        //RI
+        return false
+    }
+
+    fun esComentarioLinea(): Boolean {
+        var lexema = ""
+        if (caracterActual == '#') {
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+                if (caracterActual != '#') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    while (caracterActual != '#' && caracterActual != finCodigo) {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                    }
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                        almacenarToken(
+                            lexema,
+                            Categoria.COMENTARIO_LINEA, filaInicial, columnaInicial
+                        )
+                        return true
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
         }
         //RI
         return false
