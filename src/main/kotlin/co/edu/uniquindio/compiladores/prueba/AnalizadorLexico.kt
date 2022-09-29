@@ -549,7 +549,7 @@ class AnalizadorLexico(var codigoFuente:String) {
     // SEPARADOR ,
     fun esSeparador(): Boolean {
         var lexema = ""
-        if (caracterActual == '/') {
+        if (caracterActual == '|') {
 
             var filaInicial = filaActual
             var columnaInicial = columnaActual
