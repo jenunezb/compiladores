@@ -1,4 +1,7 @@
-package co.edu.uniquindio.compiladores.prueba
+package co.edu.uniquindio.compiladores
+
+import co.edu.uniquindio.compiladores.lexico.Categoria
+import co.edu.uniquindio.compiladores.lexico.Token
 
 class AnalizadorLexico (var codigoFuente: String) {
 

@@ -1,5 +1,6 @@
-package co.edu.uniquindio.compiladores.prueba
+package co.edu.uniquindio.compiladores
 
+import co.edu.uniquindio.compiladores.lexico.AnalizadorLexico
 import javax.swing.JOptionPane;
 import javax . swing . JFrame;
 import javax . swing . JLabel;
@@ -15,17 +16,16 @@ fun main() {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         var contentPane =frame. getContentPane ();
-        var label = JLabel("Hello World!");
         val label1 = JLabel("Ingrese el código: ")
-        var texto1 = lexico.listaTokens;
-        var resultado = ""
+        var texto1 = ""
 
-        resultado+=texto1 ;
+        for(tok in lexico.listaTokens){
+            texto1 += tok.toString()+"\n"
+        }
 
-        val texto = JTextArea(resultado);
-    
+        val texto = JTextArea(texto1);
 
-    contentPane.add(label);
+
     contentPane.add(label1);
     contentPane.add(texto);
 

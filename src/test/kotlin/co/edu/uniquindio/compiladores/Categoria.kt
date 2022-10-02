@@ -1,4 +1,4 @@
-package co.edu.uniquindio.compiladores.prueba
+package co.edu.uniquindio.compiladores
 
 enum class Categoria {
     ENTERO, DECIMAL, CADENA, CARACTER, OPERADOR_ARITMETICO, OPERADOR_INCREMENTO, OPERADOR_DECREMENTO,

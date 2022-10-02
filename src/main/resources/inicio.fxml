@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UFT-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fxcontroler="co.edu.uniquindio.compiladores.controladores.InicioController"
+            prefHeight="400.0" prefwidth="600.">
+</AnchorPane>
