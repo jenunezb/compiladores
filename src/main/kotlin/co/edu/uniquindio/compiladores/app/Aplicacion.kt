@@ -1,6 +1,5 @@
 package co.edu.uniquindio.compiladores.app
 
-import com.sun.javafx.fxml.FXMLLoaderHelper
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
@@ -11,10 +10,11 @@ class  Aplicacion : Application() {
 
     override fun start(primaryStage: Stage?) {
 
-        val loader = FXMLLoader(Application::class.java.getResource("/inicio.fxml"))
+        val loader = FXMLLoader(Aplicacion::class.java.getResource("/inicio.fxml"))
         val parent:Parent = loader.load()
 
         val scene = Scene(parent)
+
         primaryStage?.scene = scene
         primaryStage?.title = "Mi compilador"
         primaryStage?.show()
