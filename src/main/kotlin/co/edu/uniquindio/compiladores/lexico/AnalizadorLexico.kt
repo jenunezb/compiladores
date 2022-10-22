@@ -34,16 +34,14 @@ class AnalizadorLexico(var codigoFuente:String) {
             if(esBoolean()) continue
             if(esOperadorLogico())continue
             if(esOperadorAsignacion()) continue
-            if (esOperadorAritmetico()) continue
-
-
+            if(esOperadorAritmetico()) continue
+            if(esOperadorIncrementoDecremento()) continue
+            if(esOperadorRelacional()) continue
             if(esIdentificadorTipoEntero()) continue
             if(esIdentificadorTipoCadena()) continue
             if(esIdentificadorTipoBooleano()) continue
             if(esIdentificadorTipoDecimal()) continue
             if(esIdentificadorTipoCaracter()) continue
-            if(esOperadorIncrementoDecremento()) continue
-            if(esOperadorRelacional()) continue
             if(esFindeSentencia()) continue
             if(esSeparador()) continue
             if(esComentarioBloque()) continue
@@ -53,7 +51,6 @@ class AnalizadorLexico(var codigoFuente:String) {
             if(esLlaveCierre())continue
             if(esParentesisAbierto())continue
             if(esParentesisCerrado())continue
-
             if(esPalabraReservadaClase())continue
 
             //ALMACENAR LOS TOKEN
@@ -265,9 +262,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         return false
     }
 
-    /**
-     * OPERADORES
-     */
     fun esOperadorLogico():Boolean{
         var lexema = ""
         if (caracterActual == 'Y' || caracterActual == 'N' || caracterActual == 'O') {
@@ -318,7 +312,7 @@ class AnalizadorLexico(var codigoFuente:String) {
 
     fun esOperadorAritmetico(): Boolean {
         var lexema = ""
-        if (caracterActual == '+' || caracterActual == '-' || caracterActual == '*' || caracterActual == '/') {
+        if (caracterActual == '+' || caracterActual == '-' || caracterActual == '*' || caracterActual == '/'|| caracterActual == '%') {
             System.out.println(caracterActual)
             var filaInicial = filaActual
             var columnaInicial = columnaActual
