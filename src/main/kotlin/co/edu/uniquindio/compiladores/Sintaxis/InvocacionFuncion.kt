@@ -1,9 +1,7 @@
-package co.edu.uniquindio.compiladores.proyecto.Sintaxis
+package co.edu.uniquindio.compiladores.Sintaxis
 
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Error
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Token
-import co.edu.uniquindio.compiladores.proyecto.Semantica.Ambito
-import co.edu.uniquindio.compiladores.proyecto.Semantica.TablaSimbolos
+import co.edu.uniquindio.compiladores.lexico.Error
+import co.edu.uniquindio.compiladores.lexico.Token
 import javafx.scene.control.TreeItem
 
 class InvocacionFuncion(var identificadorMetodo: Token, var listaArgumentos: ArrayList<Expresion>) : Sentencia() {
@@ -28,36 +26,10 @@ class InvocacionFuncion(var identificadorMetodo: Token, var listaArgumentos: Arr
     }
 
 
-    fun obtenerTiposArgumentos(
-        tablaSimbolos: TablaSimbolos,
-        ambito: Ambito,
-        erroresSemanticos: ArrayList<Error>
-    ): ArrayList<String> {
-        var listaArg = ArrayList<String>()
-        for (a in listaArgumentos) {
-            listaArg.add(a.obtenerTipoExpresion(tablaSimbolos, ambito, erroresSemanticos))
-        }
-        return listaArg
-    }
-
-    override fun analizarSemantica(tablaSimbolos: TablaSimbolos, erroresSemanticos: ArrayList<Error>, ambito: Ambito) {
-        var listaTipoArgs = obtenerTiposArgumentos(tablaSimbolos, ambito, erroresSemanticos)
-        var sim = tablaSimbolos.buscarSimboloFuncion(identificadorMetodo.lexema, listaTipoArgs)
-        if (sim == null) {
-            erroresSemanticos.add(
-                Error(
-                    "La funcion ${identificadorMetodo.lexema} $listaTipoArgs no existe",
-                    identificadorMetodo.fila,
-                    identificadorMetodo.columna
-                )
-            )
-        }
-    }
 
     override fun toString(): String {
         return "InvocacionFuncion(identificadorMetodo=$identificadorMetodo, listaArgumentos=$listaArgumentos)"
     }
-
 
     override fun getJavaCode(): String {
 

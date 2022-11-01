@@ -1,4 +1,4 @@
-package co.edu.uniquindio.compiladores.proyecto.Sintaxis
+package co.edu.uniquindio.compiladores.Sintaxis
 
 import javafx.scene.control.TreeItem
 

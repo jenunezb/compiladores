@@ -1,9 +1,7 @@
-package co.edu.uniquindio.compiladores.proyecto.Sintaxis
+package co.edu.uniquindio.compiladores.Sintaxis
 
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Error
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Token
-import co.edu.uniquindio.compiladores.proyecto.Semantica.Ambito
-import co.edu.uniquindio.compiladores.proyecto.Semantica.TablaSimbolos
+import co.edu.uniquindio.compiladores.lexico.Error
+import co.edu.uniquindio.compiladores.lexico.Token
 import javafx.scene.control.TreeItem
 
 class ExpresionRelacional() : Expresion() {
@@ -67,39 +65,6 @@ class ExpresionRelacional() : Expresion() {
         }
         return ""
     }
-
-    override fun obtenerTipoExpresion(
-        tablaSimbolos: TablaSimbolos,
-        ambito: Ambito,
-        listaErrores: ArrayList<Error>
-    ): String {
-        return "Asert"
-    }
-
-    override fun analizarSemantica(tablaSimbolos: TablaSimbolos, erroresSemanticos: ArrayList<Error>, ambito: Ambito) {
-        if (expAritmetica1 != null && expAritmetica2 != null && operador != null) {
-            expAritmetica1!!.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito)
-            expAritmetica2!!.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito)
-
-            var tipoExp1 = expAritmetica1!!.obtenerTipoExpresion(tablaSimbolos, ambito, erroresSemanticos)
-            var tipoExp2 = expAritmetica2!!.obtenerTipoExpresion(tablaSimbolos, ambito, erroresSemanticos)
-
-            if ((tipoExp1 == "Ent" || tipoExp2 == "Dc") && (tipoExp1 == "Ent" || tipoExp2 == "Dc")) {
-
-            } else {
-                erroresSemanticos.add(
-                    Error(
-                        "La expresion no corresponde a una expresion Logica valida ",
-                        fila, columna
-                    )
-                )
-            }
-        }
-    }
-
-    /**
-     *  5<v
-     */
     override fun getJavaCode(): String {
 
         if (expAritmetica1 != null && expAritmetica2 != null) {

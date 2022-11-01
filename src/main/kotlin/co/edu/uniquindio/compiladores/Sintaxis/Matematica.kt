@@ -1,9 +1,7 @@
-package co.edu.uniquindio.compiladores.proyecto.Sintaxis
+package co.edu.uniquindio.compiladores.Sintaxis
 
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Error
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Token
-import co.edu.uniquindio.compiladores.proyecto.Semantica.Ambito
-import co.edu.uniquindio.compiladores.proyecto.Semantica.TablaSimbolos
+import co.edu.uniquindio.compiladores.lexico.Error
+import co.edu.uniquindio.compiladores.lexico.Token
 import javafx.scene.control.TreeItem
 
 class Matematica(var fnmatematica: Token, var valorNumerico: ValorNumerico) : FuncionMatematica() {
@@ -16,14 +14,6 @@ class Matematica(var fnmatematica: Token, var valorNumerico: ValorNumerico) : Fu
         return raiz
     }
 
-    override fun analizarSemantica(tablaSimbolos: TablaSimbolos, erroresSemanticos: ArrayList<Error>, ambito: Ambito) {
-
-
-        if (valorNumerico != null) {
-            valorNumerico.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito)
-        }
-
-    }
 
     override fun getJavaCode(): String {
 

@@ -1,6 +1,6 @@
-package co.edu.uniquindio.compiladores.proyecto.Sintaxis
+package co.edu.uniquindio.compiladores.Sintaxis
 
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Token
+import co.edu.uniquindio.compiladores.lexico.Token
 import javafx.scene.control.TreeItem
 
 class Parametro(var nombreParametro: Token, var tipoDato: Token) {

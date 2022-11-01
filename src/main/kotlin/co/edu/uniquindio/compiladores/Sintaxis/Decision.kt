@@ -1,8 +1,6 @@
-package co.edu.uniquindio.compiladores.proyecto.Sintaxis
+package co.edu.uniquindio.compiladores.Sintaxis
 
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Error
-import co.edu.uniquindio.compiladores.proyecto.Semantica.Ambito
-import co.edu.uniquindio.compiladores.proyecto.Semantica.TablaSimbolos
+import co.edu.uniquindio.compiladores.lexico.Error
 import javafx.scene.control.TreeItem
 
 class Decision(
@@ -40,45 +38,6 @@ class Decision(
             raiz.children.add(raizNot)
         }
         return raiz
-    }
-
-    override fun llenarTablaSimbolos(tablaSimbolos: TablaSimbolos, listaErrores: ArrayList<Error>, ambito: Ambito) {
-        var ambito1 = Ambito(ambito.nombre, this, ambito.funcion, ambito)
-        for (s in listaSentencias!!) {
-            s.llenarTablaSimbolos(tablaSimbolos, listaErrores, ambito1)
-            if (s is Retorno) {
-                centinelaRetorno = true;
-            }
-        }
-        if (listaSentenciasNot != null) {
-            for (s in listaSentenciasNot!!) {
-                s.llenarTablaSimbolos(tablaSimbolos, listaErrores, ambito1)
-                if (s is Retorno) {
-                    centinelaRetorno = true;
-                }
-            }
-        }
-
-    }
-
-    override fun analizarRetornoEnsentencias(): Boolean {
-        return centinelaRetorno
-    }
-
-    override fun analizarSemantica(tablaSimbolos: TablaSimbolos, erroresSemanticos: ArrayList<Error>, ambito: Ambito) {
-        var ambito1 = Ambito(ambito.nombre, this, ambito.funcion, ambito)
-        if (expresionLogica != null) {
-            expresionLogica!!.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito)
-        }
-
-        for (s in listaSentencias!!) {
-            s.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito1)
-        }
-        if (listaSentenciasNot != null) {
-            for (s in listaSentenciasNot!!) {
-                s.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito1)
-            }
-        }
     }
 
     override fun getJavaCode(): String {

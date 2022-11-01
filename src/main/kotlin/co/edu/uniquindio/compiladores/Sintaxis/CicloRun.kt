@@ -1,8 +1,6 @@
-package co.edu.uniquindio.compiladores.proyecto.Sintaxis
+package co.edu.uniquindio.compiladores.Sintaxis
 
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Error
-import co.edu.uniquindio.compiladores.proyecto.Semantica.Ambito
-import co.edu.uniquindio.compiladores.proyecto.Semantica.TablaSimbolos
+import co.edu.uniquindio.compiladores.lexico.Error
 import javafx.scene.control.TreeItem
 
 class CicloRun(
@@ -30,35 +28,6 @@ class CicloRun(
         raiz.children.add(raizSentencia)
 
         return raiz
-    }
-
-    override fun llenarTablaSimbolos(tablaSimbolos: TablaSimbolos, listaErrores: ArrayList<Error>, ambito: Ambito) {
-        var ambito1 = Ambito(ambito.nombre, this, ambito.funcion, ambito)
-        if (declaracionVariable != null) {
-            declaracionVariable.llenarTablaSimbolos(tablaSimbolos, listaErrores, ambito1)
-        }
-        for (s in listaSentencias) {
-            s.llenarTablaSimbolos(tablaSimbolos, listaErrores, ambito1)
-        }
-    }
-
-    override fun analizarSemantica(tablaSimbolos: TablaSimbolos, erroresSemanticos: ArrayList<Error>, ambito: Ambito) {
-        var ambito1 = Ambito(ambito.nombre, this, ambito.funcion, ambito)
-        if (expresionLogica != null) {
-            expresionLogica!!.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito)
-        }
-
-        if (incrementoDecremento != null) {
-            incrementoDecremento.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito)
-        }
-        for (s in listaSentencias) {
-
-            s.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito1)
-        }
-    }
-
-    override fun analizarRetornoEnsentencias(): Boolean {
-        return centinelaRetorno
     }
 
     override fun toString(): String {

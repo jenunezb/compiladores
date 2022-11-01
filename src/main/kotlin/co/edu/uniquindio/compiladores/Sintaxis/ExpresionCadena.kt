@@ -1,10 +1,8 @@
-package co.edu.uniquindio.compiladores.proyecto.Sintaxis
+package co.edu.uniquindio.compiladores.Sintaxis
 
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Categoria
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Error
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Token
-import co.edu.uniquindio.compiladores.proyecto.Semantica.Ambito
-import co.edu.uniquindio.compiladores.proyecto.Semantica.TablaSimbolos
+import co.edu.uniquindio.compiladores.lexico.Categoria
+import co.edu.uniquindio.compiladores.lexico.Error
+import co.edu.uniquindio.compiladores.lexico.Token
 import javafx.scene.control.TreeItem
 
 class ExpresionCadena() : Expresion() {
@@ -67,42 +65,6 @@ class ExpresionCadena() : Expresion() {
         return ""
 
     }
-
-    override fun obtenerTipoExpresion(
-        tablaSimbolos: TablaSimbolos,
-        ambito: Ambito,
-        listaErrores: ArrayList<Error>
-    ): String {
-        return "txt"
-    }
-
-    override fun analizarSemantica(tablaSimbolos: TablaSimbolos, erroresSemanticos: ArrayList<Error>, ambito: Ambito) {
-        if (ideVariable != null) {
-            var simbolo = tablaSimbolos.buscarSimboloValor(
-                ideVariable!!.lexema,
-                ambito,
-                ideVariable!!.fila,
-                ideVariable!!.columna
-            )
-            if (simbolo == null) {
-                erroresSemanticos.add(
-                    Error(
-                        "El campo (${ideVariable!!.lexema}) no existe dentro del ámbito  ($ambito)",
-                        ideVariable!!.fila,
-                        ideVariable!!.columna
-                    )
-                )
-            }
-        }
-        if (expresion != null) {
-            if (expresion is ExpresionCadena) {
-                if (expresion!!.obtenerTipoExpresion(tablaSimbolos, ambito, erroresSemanticos) == "txt") {
-                    expresion!!.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito)
-                }
-            }
-        }
-    }
-
 
     override fun getJavaCode(): String {
         var codigo = ""

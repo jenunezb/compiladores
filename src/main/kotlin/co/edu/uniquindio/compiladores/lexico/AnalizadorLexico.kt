@@ -5,12 +5,21 @@ class AnalizadorLexico(var codigoFuente:String) {
     var posicionActual = 0
     var caracterActual = codigoFuente[0]
     var listaTokens = ArrayList<Token>()
+    var ListaErrores = ArrayList<Error>();
     var finCodigo = 0.toChar()
     var filaActual = 0
     var columnaActual = 0
 
     fun almacenarToken(lexema:String, categoria: Categoria, fila:Int, columna:Int) = listaTokens.add(Token(lexema,categoria,fila,columna))
 
+    fun almacenarReporteErrores(lexema: String,  fila: Int, columna: Int) =
+        ListaErrores.add(
+            Error(
+                lexema,
+                fila,
+                columna
+            )
+        )
     fun hacerBT(posicionInicial: Int, filaInicial: Int, columnaInicial: Int) {
 
         posicionActual = posicionInicial
@@ -46,12 +55,33 @@ class AnalizadorLexico(var codigoFuente:String) {
             if(esSeparador()) continue
             if(esComentarioBloque()) continue
             if(esComentarioLinea()) continue
-            if(esDosPuntos()) continue
+            if(esTerminal()) continue
+            if(esCaracterEscape()) continue
+            if(esPuntoYcoma()) continue
             if(esLlaveApertura())continue
             if(esLlaveCierre())continue
             if(esParentesisAbierto())continue
             if(esParentesisCerrado())continue
             if(esPalabraReservadaClase())continue
+            if(esIdentificadorTipoCiclos()) continue
+            if(esPalabraReservadaInicioDeClase()) continue
+            if(esUnaPalabraReservadaCondicional()) continue
+            if(esIdentificadorTipoConstantes()) continue
+            if(esPalabraReservadaFinDeClase()) continue
+            if(esPalabraReservadaRetorno()) continue
+            if(esIdentificadorDeMetodo()) continue
+            if(esIdentificadorVariable()) continue
+            if(esAgrupador()) continue
+            if(esInicioSentencia()) continue
+            if(esFinSentencia()) continue
+            if(esPalabraReservadaVacio()) continue
+            if(esIdentificadorArreglo()) continue
+            if(esIdentificadorLectura()) continue
+            if(esPalabraReservadaImpresion()) continue
+            if(esPalabraReservadaFuncionMatematica()) continue
+            if(esPalabraIdentificadorMatematico()) continue
+            if(esPalabraReservadaRomper()) continue
+            if(esPalabraReservadaContinuar()) continue
 
             //ALMACENAR LOS TOKEN
 
@@ -217,6 +247,7 @@ class AnalizadorLexico(var codigoFuente:String) {
         return false
 
     }
+
 
     fun esBoolean(): Boolean {
         var lexema = ""
@@ -557,10 +588,33 @@ class AnalizadorLexico(var codigoFuente:String) {
         return false
     }
 
-    // Punto y coma
-    fun esDosPuntos(): Boolean {
+    fun esAgrupador(): Boolean {
         var lexema = ""
-        if (caracterActual == '"') {
+        if (caracterActual == ':') {
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if (caracterActual == 'C') {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            } else {
+                almacenarToken(
+                    lexema,
+                    Categoria.AGRUPADOR, filaInicial, columnaInicial
+                )
+                return true
+            }
+        }
+        return false
+    }
+
+    // Punto y coma
+    fun esPuntoYcoma(): Boolean {
+        var lexema = ""
+        if (caracterActual == ';') {
 
             var filaInicial = filaActual
             var columnaInicial = columnaActual
@@ -569,7 +623,7 @@ class AnalizadorLexico(var codigoFuente:String) {
             obtenerSiguienteCaracter()
             almacenarToken(
                 lexema,
-                Categoria.IDENTIFICADOR_DOS_PUNTOS, filaInicial, columnaInicial
+                Categoria.IDENTIFICADOR_PUNTO_COMA, filaInicial, columnaInicial
             )
             return true
         }
@@ -745,6 +799,52 @@ class AnalizadorLexico(var codigoFuente:String) {
                     hacerBT(posicionInicial, filaInicial, columnaInicial)
                     return false
                 }
+        }
+        //RI
+        return false
+    }
+
+    //Verifica si el token es un termial es ALT + 194
+    fun esTerminal(): Boolean {
+        var lexema = ""
+        if (caracterActual == '┬') {
+
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            almacenarToken(
+                lexema,
+                Categoria.TERMINAL, filaInicial, columnaInicial
+            )
+            return true
+        }
+        //RI
+        return false
+    }
+
+    fun esCaracterEscape(): Boolean {
+        var lexema = ""
+        if (caracterActual == '^') {
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == '*' || caracterActual == '?' || caracterActual == ']' || caracterActual == '_') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                almacenarToken(
+                    lexema,
+                    Categoria.CARACTER_ESCAPE, filaInicial, columnaInicial
+                )
+                return true
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
         }
         //RI
         return false
@@ -1063,9 +1163,233 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-    /**
-     * PALABRAS RESERVADAS
-     */
+
+
+    //Verifica si el identificador es de tipo constante
+    fun esIdentificadorTipoConstantes(): Boolean {
+        var lexema = ""
+        if (caracterActual == 'C') {
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'O') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'N') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'S') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'T') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            almacenarToken(
+                                lexema,
+                                Categoria.IDENTIFICADOR_VARIABLE_CONSTANTE,
+                                filaInicial,
+                                columnaInicial
+                            )
+                            return true
+                        } else {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+
+        }
+        //RI
+        return false
+    }
+
+    fun esIdentificadorTipoCiclos(): Boolean {
+        var lexema = ""
+        if (caracterActual == 'r' || caracterActual == 'R') {
+
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+            if (caracterActual == 'r') {
+
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+
+                if (caracterActual == 'u') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'n') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        almacenarToken(
+                            lexema,
+                            Categoria.PALABRA_RESERVADA_CICLOS, filaInicial, columnaInicial
+                        )
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else {
+
+                if (caracterActual == 'R') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'a') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'm') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            almacenarToken(
+                                lexema,
+                                Categoria.PALABRA_RESERVADA_CICLOS, filaInicial, columnaInicial
+                            )
+                            return true
+                        } else {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            }
+        }
+        //RI
+        return false
+    }
+
+    //Verifica palabra reservada inicio de clase
+    fun esPalabraReservadaInicioDeClase(): Boolean {
+        var lexema = ""
+        if (caracterActual == 'd') {
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if (caracterActual == 'r') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'a') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'w') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'e') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 'r') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+                                almacenarToken(
+                                    lexema,
+                                    Categoria.PALABRA_RESERVADA_INICIO_CLASE, filaInicial, columnaInicial
+                                )
+                                return true
+                            } else {
+                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                return false
+                            }
+                        } else {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+        }
+        //RI
+        return false
+    }
+
+    //Verifica si una palabra reservada condicional
+    fun esUnaPalabraReservadaCondicional(): Boolean {
+        var lexema = ""
+        if (caracterActual == 'S' || caracterActual == 'N') {
+
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+            if (caracterActual == 'S') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'I') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(
+                        lexema,
+                        Categoria.PALABRA_RESERVADA_DESCICIONES, filaInicial, columnaInicial
+                    )
+                    return true
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else {
+
+                if (caracterActual == 'N') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'O') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        almacenarToken(
+                            lexema,
+                            Categoria.PALABRA_RESERVADA_DESCICIONES, filaInicial, columnaInicial
+                        )
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            }
+        }
+        //RI
+        return false
+    }
 
     fun esPalabraReservadaClase(): Boolean {
         var lexema = ""
@@ -1117,8 +1441,711 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
+    //Verifica si es la palabra reservada de fin de clase
+    fun esPalabraReservadaFinDeClase(): Boolean {
+        var lexema = ""
+        if (caracterActual == 'e') {
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'x') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'i') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 't') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        almacenarToken(
+                            lexema,
+                            Categoria.PALABRA_RESERVADA_FIN_CLASE, filaInicial, columnaInicial
+                        )
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+        }
+        //RI
+        return false
+    }
+    //Verifica si es la palabra reservada de retorno
+    fun esPalabraReservadaRetorno(): Boolean {
+        var lexema = ""
+        if (caracterActual == '>') {
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'b') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'a') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'c') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'k') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            almacenarToken(
+                                lexema,
+                                Categoria.PALABRA_RESERVADA_RETORNO, filaInicial, columnaInicial
+                            )
+                            return true
+                        } else {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+        }
+        //RI
+        return false
+    }
+
+    //Verifica si es identificador Método
+    fun esIdentificadorDeMetodo(): Boolean {
+        var lexema = ""
+        if (caracterActual == '¬') {
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+                        while (isMayuscula(caracterActual)) {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                        }
+                        if (caracterActual == '¬') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                                    almacenarToken(
+                                        lexema,
+                                        Categoria.IDENTIFICADOR_DE_METODOS,
+                                        filaInicial,
+                                        columnaInicial
+                                    )
+                                    return true
+                } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+        }
+        //RI
+        return false
+    }
+
+    //Verifica si el token es un identificador de variable
+    fun esIdentificadorVariable(): Boolean {
+        var lexema = ""
+        if (caracterActual == 'V') {
+
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if (caracterActual == 'A') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'R') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    while (caracterActual.isLetterOrDigit() && caracterActual != finCodigo) {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                    }
+                    if (!caracterActual.isLetterOrDigit() || caracterActual != finCodigo) {
+                        almacenarToken(
+                            lexema,
+                            Categoria.IDENTIFICADOR_VARIABLE, filaInicial, columnaInicial
+                        )
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+        }
+        //RI
+        return false
+    }
+    //Indica el caracter que limita por ambos extremos un bloque de agrupacion
+
+    //Indica el caracter que inicia el bloque de sentencia
+    fun esInicioSentencia(): Boolean {
+        var lexema = ""
+        if (caracterActual == '{') {
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if (caracterActual == '}') {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            } else {
+                almacenarToken(
+                    lexema,
+                    Categoria.LLAVE_INICIO, filaInicial, columnaInicial
+                )
+                return true
+            }
+        }
+        return false
+    }
+
+    //Indica el caracter que finaliza el bloque de sentencia
+    fun esFinSentencia(): Boolean {
+        var lexema = ""
+        if (caracterActual == '>') {
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if (caracterActual == 'b') {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            } else {
+                almacenarToken(
+                    lexema,
+                    Categoria.LLAVE_FIN, filaInicial, columnaInicial
+                )
+                return true
+            }
+        }
+        return false
+    }
+
+    //Indica la palabra reservada para el tipo de retorno void
+    fun esPalabraReservadaVacio(): Boolean {
+        var lexema = ""
+        if (caracterActual == 'V') {
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'i') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'd') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'e') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        almacenarToken(
+                            lexema,
+                            Categoria.PALABRA_RESERVADA_VACIO, filaInicial, columnaInicial
+                        )
+                        return true
+
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+        }
+        //RI
+        return false
+    }
+
+    //Verifica si el token es un identificador de arreglo
+    fun esIdentificadorArreglo(): Boolean {
+        var lexema = ""
+        if (caracterActual == '#') {
+
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if (caracterActual == '>') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'A') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    while (caracterActual.isLetterOrDigit() && caracterActual != finCodigo) {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                    }
+                    if (!caracterActual.isLetterOrDigit() || caracterActual != finCodigo) {
+                        almacenarToken(
+                            lexema,
+                            Categoria.IDENTIFICADOR_ARREGLO, filaInicial, columnaInicial
+                        )
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+        }
+        //RI
+        return false
+    }
+
+    //Metodos auxiliares
+    fun isMayuscula(letra: Char): Boolean {
+        if (letra == 'A' || letra == 'B' || letra == 'C' || letra == 'D' ||
+            letra == 'E' || letra == 'F' || letra == 'G' || letra == 'H' ||
+            letra == 'I' || letra == 'J' || letra == 'K' || letra == 'L' ||
+            letra == 'Ñ' || letra == 'N' || letra == 'M' || letra == 'O' ||
+            letra == 'P' || letra == 'Q' || letra == 'R' || letra == 'S' ||
+            letra == 'T' || letra == 'U' || letra == 'V' || letra == 'W' || letra == 'Z'
+        ) {
+            return true
+        }
+        return false
+    }
+
+    fun esIdentificadorLectura(): Boolean {
+        var lexema = ""
+        if (caracterActual == 'L') {
+
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if (caracterActual == 'i') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'r') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'e') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'D') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 'i') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+                                if (caracterActual == 'a') {
+                                    lexema += caracterActual
+                                    obtenerSiguienteCaracter()
+                                    if (caracterActual == 'l') {
+                                        lexema += caracterActual
+                                        obtenerSiguienteCaracter()
+                                        if (caracterActual == 'o') {
+                                            lexema += caracterActual
+                                            obtenerSiguienteCaracter()
+                                            if (caracterActual == 'g') {
+                                                lexema += caracterActual
+                                                obtenerSiguienteCaracter()
+                                                if (caracterActual == 'u')
+                                                    lexema += caracterActual
+                                                obtenerSiguienteCaracter()
+                                                if (caracterActual == 'e') {
+                                                    lexema += caracterActual
+                                                    obtenerSiguienteCaracter()
+                                                    almacenarToken(
+                                                        lexema,
+                                                        Categoria.PALABRA_RESERVADA_LEER, filaInicial, columnaInicial
+                                                    )
+                                                    return true
+                                                } else {
+                                                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                                    return false
+                                                }
+                                            } else {
+                                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                                return false
+                                            }
+                                        } else {
+                                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                            return false
+                                        }
+
+                                    } else {
+                                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                        return false
+                                    }
+                                } else {
+                                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                    return false
+                                }
+                            } else {
+                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                return false
+                            }
+                        } else {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+        }
+        //RI
+        return false
+    }
+
+    //Verifica si el token es  la palabra reservada para imprimir
+    fun esPalabraReservadaImpresion(): Boolean {
+        var lexema = ""
+        if (caracterActual == 'M') {
+
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if (caracterActual == 'o') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'n') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 't') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'r') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 'e') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+                                if (caracterActual == 'r') {
+                                    lexema += caracterActual
+                                    obtenerSiguienteCaracter()
+                                    almacenarToken(
+                                        lexema,
+                                        Categoria.PALABRA_RESERVADA_IMPRIMIR, filaInicial, columnaInicial
+                                    )
+                                    return true
+                                } else {
+                                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                    return false
+                                }
+                            } else {
+                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                return false
+                            }
+                        } else {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+        }
+        //RI
+        return false
+    }
+
+    fun esPalabraReservadaFuncionMatematica(): Boolean {
+        var lexema = ""
+        if (caracterActual == 'F') {
+
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if (caracterActual == 'n') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == '_') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(
+                        lexema,
+                        Categoria.PALABRA_RESERVADA_FUNCION_MATEMATICA, filaInicial, columnaInicial
+                    )
+                    return true
+
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+        }
+        //RI
+        return false
+    }
+
+    fun esPalabraIdentificadorMatematico(): Boolean {
+        var lexema = ""
+        if (caracterActual == 'A' || caracterActual == 'C' || caracterActual == 'S') {
+
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'b' || caracterActual == 'o' || caracterActual == 'e') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 's' || caracterActual == 'i') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'o' || caracterActual == 'i' || caracterActual == 'n') {
+                        if (caracterActual == 'n') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            almacenarToken(
+                                lexema,
+                                Categoria.PALABRA_IDENTIFICADOR_MATEMATICO, filaInicial, columnaInicial
+                            )
+                            return true
+                        } else {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 'l') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+                                if (caracterActual == 'u') {
+                                    lexema += caracterActual
+                                    obtenerSiguienteCaracter()
+                                    almacenarToken(
+                                        lexema,
+                                        Categoria.PALABRA_IDENTIFICADOR_MATEMATICO, filaInicial, columnaInicial
+                                    )
+                                    return true
+                                }
+                            } else {
+                                if (caracterActual == 'n') {
+                                    lexema += caracterActual
+                                    obtenerSiguienteCaracter()
+                                    if (caracterActual == 'u') {
+                                        lexema += caracterActual
+                                        obtenerSiguienteCaracter()
+                                        if (caracterActual == 's') {
+                                            lexema += caracterActual
+                                            obtenerSiguienteCaracter()
+                                            almacenarToken(
+                                                lexema,
+                                                Categoria.PALABRA_IDENTIFICADOR_MATEMATICO, filaInicial, columnaInicial
+                                            )
+                                            return true
+                                        } else {
+                                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                            return false
+                                        }
+                                    } else {
+                                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                        return false
+                                    }
+                                } else {
+                                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                    return false
+                                }
+                            }
+                        }
+
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+        }
+        //RI
+        return false
+    }
 
 
+    fun esPalabraReservadaRomper(): Boolean {
+        var lexema = ""
+        if (caracterActual == 'C') {
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'a') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 's') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 's') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'e') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 'r') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+                                almacenarToken(
+                                    lexema,
+                                    Categoria.PALABRA_RESERVADA_ROMPER, filaInicial, columnaInicial
+                                )
+                                return true
+                            } else {
+                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                return false
+                            }
+                        } else {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+        }
+        //RI
+        return false
+
+    }
+
+
+    fun esPalabraReservadaContinuar(): Boolean {
+        var lexema = ""
+        if (caracterActual == 'R') {
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'e') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 's') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 't') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'e') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 'r') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+                                almacenarToken(
+                                    lexema,
+                                    Categoria.PALABRA_RESERVADA_CONTINUAR, filaInicial, columnaInicial
+                                )
+                                return true
+                            } else {
+                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                return false
+                            }
+                        } else {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+        }
+        //RI
+        return false
+    }
     fun obtenerSiguienteCaracter(){
 
         if(posicionActual==codigoFuente.length-1){

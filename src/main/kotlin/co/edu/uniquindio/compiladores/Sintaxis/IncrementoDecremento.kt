@@ -1,10 +1,8 @@
-package co.edu.uniquindio.compiladores.proyecto.Sintaxis
+package co.edu.uniquindio.compiladores.Sintaxis
 
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Categoria
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Error
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Token
-import co.edu.uniquindio.compiladores.proyecto.Semantica.Ambito
-import co.edu.uniquindio.compiladores.proyecto.Semantica.TablaSimbolos
+import co.edu.uniquindio.compiladores.lexico.Categoria
+import co.edu.uniquindio.compiladores.lexico.Error
+import co.edu.uniquindio.compiladores.lexico.Token
 import javafx.scene.control.TreeItem
 
 class IncrementoDecremento(var identificador: Token?, var operador: Token) : Sentencia() {
@@ -33,39 +31,6 @@ class IncrementoDecremento(var identificador: Token?, var operador: Token) : Sen
             raiz.children.add(raizDecremento)
         }
         return raiz
-    }
-
-    override fun analizarSemantica(tablaSimbolos: TablaSimbolos, erroresSemanticos: ArrayList<Error>, ambito: Ambito) {
-        if (identificador != null) {
-            var simbolo = tablaSimbolos.buscarSimboloValor(
-                identificador!!.lexema,
-                ambito,
-                identificador!!.fila,
-                identificador!!.columna
-            )
-            if (simbolo == null) {
-                erroresSemanticos.add(
-                    Error(
-                        "El campo (${identificador!!.lexema}) no existe dentro del ámbito  ($ambito)",
-                        identificador!!.fila,
-                        identificador!!.columna
-                    )
-                )
-            } else {
-                var tipo = simbolo!!.tipo
-                if (tipo == "Ent" || tipo == "Dc") {
-
-                } else {
-                    erroresSemanticos.add(
-                        Error(
-                            "El campo (${identificador!!.lexema}) no  es un tipo de dato numerico",
-                            identificador!!.fila,
-                            identificador!!.columna
-                        )
-                    )
-                }
-            }
-        }
     }
 
     override fun getJavaCode(): String {

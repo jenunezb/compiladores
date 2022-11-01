@@ -1,9 +1,7 @@
-package co.edu.uniquindio.compiladores.proyecto.Sintaxis
+package co.edu.uniquindio.compiladores.Sintaxis
 
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Error
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Token
-import co.edu.uniquindio.compiladores.proyecto.Semantica.Ambito
-import co.edu.uniquindio.compiladores.proyecto.Semantica.TablaSimbolos
+import co.edu.uniquindio.compiladores.lexico.Error
+import co.edu.uniquindio.compiladores.lexico.Token
 import javafx.scene.control.TreeItem
 import kotlin.collections.ArrayList
 
@@ -23,35 +21,6 @@ open class Arreglo(var tipodato: Token, var identificador: Token, var listaDatos
         }
         return raiz
     }
-
-    override fun llenarTablaSimbolos(tablaSimbolos: TablaSimbolos, listaErrores: ArrayList<Error>, ambito: Ambito) {
-        tablaSimbolos.guardarSimboloValor(
-            identificador.lexema,
-            tipodato.lexema,
-            true,
-            ambito,
-            identificador.fila,
-            identificador.columna
-        )
-    }
-
-    override fun analizarSemantica(tablaSimbolos: TablaSimbolos, listaErrores: ArrayList<Error>, ambito: Ambito) {
-
-        for (e in listaDatos!!) {
-            e!!.analizarSemantica(tablaSimbolos, listaErrores, ambito)
-            var tipo = e.obtenerTipoExpresion(tablaSimbolos, ambito, listaErrores)
-            if (tipo != tipodato.lexema) {
-                listaErrores.add(
-                    Error(
-                        "El tipo de dato de la expresion($tipo) no coincide con el tipo de dato del arreglo(${tipodato.lexema})",
-                        identificador.fila,
-                        identificador.columna
-                    )
-                )
-            }
-        }
-    }
-
 
     /**
      * int[] arreglo = {1,2,3,4}

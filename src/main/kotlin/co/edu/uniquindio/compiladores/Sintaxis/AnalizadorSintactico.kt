@@ -1,5 +1,4 @@
-package co.edu.uniquindio.compiladores.proyecto.Sintaxis
-
+package co.edu.uniquindio.compiladores.Sintaxis
 
 import co.edu.uniquindio.compiladores.lexico.Categoria
 import co.edu.uniquindio.compiladores.lexico.Token
@@ -26,7 +25,6 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
         listaErrores.add(Error(mensaje, tokenActual.fila, tokenActual.columna))
     }
 
-
     fun hacerBT(posicionInicial: Int) {
 
         posicionActual = posicionInicial
@@ -34,7 +32,6 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
             tokenActual = listaTokens[posicionActual]
         }
     }
-
 
     /**
      * <UnidadDeCompilacio>::=<listaFunciones>
@@ -45,7 +42,6 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
             UnidadDeCompilacion(listaFunciones)
         } else null
     }
-
 
     /**\
      * <listafunciones.::=<Funcion>[<ListaFunciones>]
@@ -70,45 +66,50 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
         if (tokenActual.categoria == Categoria.IDENTIFICADOR_DE_METODOS) {
             var nombreFuncion = tokenActual
             obtenerSiguienteToken()
-            if (tokenActual.categoria == Categoria.AGRUPADOR) {
+
+            var tipoRetorno = esTipoRetorno()
+            if (tipoRetorno != null) {
                 obtenerSiguienteToken()
-                var listaParametros = esListaParametros()
-                if (tokenActual.categoria == Categoria.AGRUPADOR) {
+
+                if (tokenActual.categoria == Categoria.PARENTESISABIERTO) {
                     obtenerSiguienteToken()
-                    var tipoRetorno = esTipoRetorno()
-                    if (tipoRetorno != null) {
+
+                    var listaParametros = esListaParametros()
+                    if (tokenActual.categoria == Categoria.PARENTESISCERRADO) {
                         obtenerSiguienteToken()
-                        var bloqueSentencia = esBloqueSentencias()
-                        if (bloqueSentencia != null) {
-                            //La funcion esta bien escrita
 
-                            return Funcion(
-                                nombreFuncion,
-                                tipoRetorno,
-                                listaParametros,
-                                bloqueSentencia,
-                                tokenActual.fila,
-                                tokenActual.columna
-                            )
+                            var bloqueSentencia = esBloqueSentencias()
+                            if (bloqueSentencia != null) {
+                                //La funcion esta bien escrita
 
-                        } else {
-                            reportarError(mensaje = "El bloque de sentencias esta vacio")
+                                return Funcion(
+                                    nombreFuncion,
+                                    tipoRetorno,
+                                    listaParametros,
+                                    bloqueSentencia,
+                                    tokenActual.fila,
+                                    tokenActual.columna
+                                )
+
+                            } else {
+                                reportarError(mensaje = "El bloque de sentencias esta vacio")
+                            }
+
+                        }else{
+                            reportarError(mensaje = "Falta la llave de apertura")
                         }
+
                     } else {
-                        reportarError(mensaje = "El tipo de retorno es obligatorio")
+                        reportarError(mensaje = "Falta el agrupador")
                     }
+
                 } else {
                     reportarError(mensaje = "Falta el agrupador")
                 }
-
-            } else {
-                reportarError(mensaje = "Falta el agrupador")
             }
+
+            return null
         }
-
-        return null
-    }
-
 
     /**
      * <TipoRetorno>::= Ent|Dc|txt|lett|Asert|Vide
@@ -145,7 +146,6 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
     fun esListaParametros(): ArrayList<Parametro> {
         var listaParametros = ArrayList<Parametro>()
         var parametro = esParametro()
-
         if (parametro != null) {
             while (parametro != null) {
                 listaParametros.add(parametro)
@@ -226,24 +226,24 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
     }
 
     /**
-     * <BloqueSentencia>::="<"[<listaSentencias>]">"
+     * <BloqueSentencia>::="{"[<listaSentencias>]"}"
      */
     fun esBloqueSentencias(): ArrayList<Sentencia>? {
 
-        if (tokenActual.categoria == Categoria.INICIO_SENTENCIA) {
+        if (tokenActual.categoria == Categoria.LLAVEAPERTURA){
 
             obtenerSiguienteToken()
 
             var listaSentencias = esListaSentencias()
 
-            if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
+            if (tokenActual.categoria == Categoria.LLAVECIERRE) {
                 obtenerSiguienteToken()
                 return listaSentencias
             } else {
-                reportarError(mensaje = "El fin de sentencia es obligatorio")
+                reportarError(mensaje = "Falta la llave derecha de la función")
             }
         } else {
-            reportarError(mensaje = "El inicio de sentencia es obligatorio")
+            reportarError(mensaje = "Falta la llave izquierda de la función")
         }
         return null
     }
@@ -252,7 +252,6 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
      * <listaSentencias>::=<Sentencia>[<listaSentencia>]
      */
     fun esListaSentencias(): ArrayList<Sentencia> {
-
 
         var listaSentencias = ArrayList<Sentencia>()
         var sentencia = esSentencia()
@@ -269,8 +268,8 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
      */
     fun esSentencia(): Sentencia? {
 
-
         var sentencia: Sentencia? = esDecision()
+
         if (sentencia != null) {
             return sentencia
         }
@@ -327,16 +326,16 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
     }
 
     /**
-     * <Decision>::=Yes<ExpresionLogica><BloqueSentencia>[Not<BloqueSentencia>]
+     * <Decision>::=SI<ExpresionLogica><BloqueSentencia>[NO<BloqueSentencia>]
      */
     fun esDecision(): Decision? {
 
-        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA_DESCICIONES && (tokenActual.lexema == "Yes")) {
+        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA_DESCICIONES && (tokenActual.lexema == "SI")) {
             obtenerSiguienteToken()
             val expresion = esExpresionLogica()
             if (expresion == null) {
                 reportarError(mensaje = "Hay un error en la condición")
-                while (!(tokenActual.categoria == Categoria.INICIO_SENTENCIA) && tokenActual.categoria != Categoria.FIN_CODIGO) {
+                while (!(tokenActual.categoria == Categoria.LLAVE_INICIO) && tokenActual.categoria != Categoria.FIN_CODIGO) {
                     obtenerSiguienteToken()
                 }
             }
@@ -393,7 +392,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
             val expresion = esExpresionLogica()
             if (expresion == null) {
                 reportarError(mensaje = "Hay un error en la condición")
-                while (!(tokenActual.categoria == Categoria.INICIO_SENTENCIA) && tokenActual.categoria != Categoria.FIN_CODIGO) {
+                while (!(tokenActual.categoria == Categoria.LLAVE_INICIO) && tokenActual.categoria != Categoria.FIN_CODIGO) {
                     obtenerSiguienteToken()
                 }
             }
@@ -451,7 +450,6 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
 
         return null
     }
-
 
     /**
      * <Impresion>::=PalabraReservadaImprimir ":"<ListaAgumentos":"
@@ -556,7 +554,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
             }
             val invocacion = esInvocacionFuncion()
             if (invocacion != null) {
-                return Asignacion(identificador, opAsig, null, invocacion)
+                return Asignacion(identificador, opAsig, null)
             } else {
                 val expresion = esExpresion()
                 if (expresion != null) {
@@ -565,7 +563,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
                     } else {
                         reportarError(mensaje = "Falta el terminal de la sentencia")
                     }
-                    return Asignacion(identificador, opAsig, expresion, null)
+                    return Asignacion(identificador, opAsig, expresion)
                 } else {
                     hacerBT(posicionInicial)
                     return null
@@ -662,7 +660,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
                     obtenerSiguienteToken()
                     identificador = tokenActual
                 } else {
-                    if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
+                    if (tokenActual.categoria == Categoria.LLAVE_FIN) {
                         reportarError(mensaje = "Falta el terminal $")
                     }
                     break
@@ -689,7 +687,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
                 obtenerSiguienteToken()
                 argumento = esExpresion()
             } else {
-                if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
+                if (tokenActual.categoria == Categoria.LLAVE_FIN) {
                     reportarError(mensaje = "Falta el terminal")
                 }
                 break
@@ -867,7 +865,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
                     }
                 }
             } else {
-                if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
+                if (tokenActual.categoria == Categoria.LLAVE_FIN) {
                     reportarError(mensaje = "Falta el terminal")
                 }
                 break
@@ -1189,8 +1187,6 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
         }
         return null
     }
-
-
     /**
      * <Matematica>::=PalabraIdentificadorMatematico":"<ValorNumerico>":"
      */

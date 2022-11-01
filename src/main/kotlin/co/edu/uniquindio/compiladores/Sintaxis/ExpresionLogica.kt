@@ -1,11 +1,8 @@
-package co.edu.uniquindio.compiladores.proyecto.Sintaxis
+package co.edu.uniquindio.compiladores.Sintaxis
 
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Token
-import co.edu.uniquindio.compiladores.proyecto.Semantica.TablaSimbolos
+import co.edu.uniquindio.compiladores.lexico.Token
 import javafx.scene.control.TreeItem
-
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Error
-import co.edu.uniquindio.compiladores.proyecto.Semantica.Ambito
+import co.edu.uniquindio.compiladores.lexico.Error
 
 class ExpresionLogica() : Expresion() {
     var expLogica1: ExpresionLogica? = null
@@ -87,35 +84,6 @@ class ExpresionLogica() : Expresion() {
             return " ${expRelacional.toString()} "
         }
         return ""
-    }
-
-    override fun obtenerTipoExpresion(
-        tablaSimbolos: TablaSimbolos,
-        ambito: Ambito,
-        listaErrores: ArrayList<Error>
-    ): String {
-        return "Asert"
-    }
-
-    override fun analizarSemantica(tablaSimbolos: TablaSimbolos, erroresSemanticos: ArrayList<Error>, ambito: Ambito) {
-
-        if (expLogica1 != null && expLogica2 != null) {
-            expLogica1!!.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito)
-            expLogica2!!.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito)
-        } else {
-            if (expLogica1 != null) {
-                expLogica1!!.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito)
-            } else {
-                if (expRelacional != null && expLogica3 != null) {
-                    expRelacional!!.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito)
-                    expLogica3!!.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito)
-                } else {
-                    if (expRelacional != null) {
-                        expRelacional!!.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito)
-                    }
-                }
-            }
-        }
     }
 
     override fun getJavaCode(): String {

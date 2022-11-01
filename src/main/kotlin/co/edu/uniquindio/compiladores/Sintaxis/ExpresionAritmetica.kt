@@ -1,10 +1,8 @@
-package co.edu.uniquindio.compiladores.proyecto.Sintaxis
+package co.edu.uniquindio.compiladores.Sintaxis
 
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Categoria
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Error
-import co.edu.uniquindio.compiladores.proyecto.Lexico.Token
-import co.edu.uniquindio.compiladores.proyecto.Semantica.Ambito
-import co.edu.uniquindio.compiladores.proyecto.Semantica.TablaSimbolos
+import co.edu.uniquindio.compiladores.lexico.Categoria
+import co.edu.uniquindio.compiladores.lexico.Error
+import co.edu.uniquindio.compiladores.lexico.Token
 import javafx.scene.control.TreeItem
 
 open class ExpresionAritmetica() : Expresion() {
@@ -80,127 +78,6 @@ open class ExpresionAritmetica() : Expresion() {
         }
         return ""
     }
-
-    override fun obtenerTipoExpresion(
-        tablaSimbolos: TablaSimbolos,
-        ambito: Ambito,
-        listaErrores: ArrayList<Error>
-    ): String {
-        if (expAritmetica1 != null && expAritmetica2 != null && valorNumerico == null) {
-
-            var tipo1 = expAritmetica1!!.obtenerTipoExpresion(tablaSimbolos, ambito, listaErrores)
-            var tipo2 = expAritmetica2!!.obtenerTipoExpresion(tablaSimbolos, ambito, listaErrores)
-            if (tipo1 == Categoria.DECIMAL.name || tipo2 == Categoria.DECIMAL.name) {
-                return "Dc"
-            } else {
-                return "Ent"
-            }
-        } else {
-            if (expAritmetica1 != null && expAritmetica2 == null && valorNumerico == null) {
-                return obtenerTipoExpresion(tablaSimbolos, ambito, listaErrores)
-
-            } else {
-                if (valorNumerico != null && expAritmetica1 != null && expAritmetica2 == null) {
-
-                    var tipo1 = obtenerTipoCampo(valorNumerico, ambito, tablaSimbolos, listaErrores)
-                    var tipo2 = expAritmetica1!!.obtenerTipoExpresion(tablaSimbolos, ambito, listaErrores)
-                    if (tipo1 == Categoria.DECIMAL.name || tipo2 == Categoria.DECIMAL.name) {
-                        return "Dc"
-                    } else {
-                        return "Ent"
-                    }
-
-                } else {
-                    if (valorNumerico != null) {
-
-                        return obtenerTipoCampo(valorNumerico, ambito, tablaSimbolos, listaErrores)
-                    }
-                }
-            }
-        }
-
-        return ""
-
-    }
-
-    fun obtenerTipoCampo(
-        valorNumerico: ValorNumerico?,
-        ambito: Ambito,
-        tablaSimbolos: TablaSimbolos,
-        listaErrores: ArrayList<Error>
-    ): String {
-
-        if (valorNumerico!!.termino.categoria == Categoria.ENTERO) {
-            return "Ent"
-        } else {
-            if (valorNumerico!!.termino.categoria == Categoria.DECIMAL) {
-                return "Dc"
-            } else {
-                var simbolo = tablaSimbolos.buscarSimboloValor(
-                    valorNumerico!!.termino.lexema,
-                    ambito,
-                    valorNumerico!!.termino.fila,
-                    valorNumerico!!.termino.columna
-                )
-                if (simbolo != null) {
-                    return simbolo.tipo
-                } else {
-                    listaErrores.add(
-                        Error(
-                            "El campo ${valorNumerico!!.termino.lexema} no existe dentro del ámbito  $ambito",
-                            valorNumerico!!.termino.fila,
-                            valorNumerico!!.termino.columna
-                        )
-                    )
-                }
-            }
-        }
-        return ""
-    }
-
-
-    override fun analizarSemantica(tablaSimbolos: TablaSimbolos, erroresSemanticos: ArrayList<Error>, ambito: Ambito) {
-
-        if (valorNumerico != null) {
-            if (valorNumerico!!.termino.categoria == Categoria.IDENTIFICADOR_VARIABLE) {
-                var simbolo = tablaSimbolos.buscarSimboloValor(
-                    valorNumerico!!.termino.lexema,
-                    ambito,
-                    valorNumerico!!.termino.fila,
-                    valorNumerico!!.termino.columna
-                )
-                if (simbolo == null) {
-                    erroresSemanticos.add(
-                        Error(
-                            "El campo (${valorNumerico!!.termino.lexema}) no existe dentro del ámbito  ($ambito)",
-                            valorNumerico!!.termino.fila,
-                            valorNumerico!!.termino.columna
-                        )
-                    )
-                } else {
-                    var tipo = simbolo!!.tipo
-                    if (tipo == "Ent" || tipo == "Dc") {
-
-                    } else {
-                        erroresSemanticos.add(
-                            Error(
-                                "El campo (${valorNumerico!!.termino.lexema}) no es un tipo de dato numerico",
-                                valorNumerico!!.termino.fila,
-                                valorNumerico!!.termino.columna
-                            )
-                        )
-                    }
-                }
-            }
-        }
-        if (expAritmetica1 != null) {
-            expAritmetica1!!.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito)
-        }
-        if (expAritmetica2 != null) {
-            expAritmetica2!!.analizarSemantica(tablaSimbolos, erroresSemanticos, ambito)
-        }
-    }
-
 
     override fun getJavaCode(): String {
         if (expAritmetica1 != null && operador != null && expAritmetica2 != null) {
