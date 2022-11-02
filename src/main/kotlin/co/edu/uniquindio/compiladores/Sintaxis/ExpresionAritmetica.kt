@@ -76,6 +76,7 @@ open class ExpresionAritmetica() : Expresion() {
         if (valorNumerico != null) {
             return "${valorNumerico.toString()}"
         }
+
         return ""
     }
 

@@ -3,10 +3,13 @@
 
  fun main(){
      val lexico = AnalizadorLexico(
-         codigoFuente = "¬METODO¬ ENTERO (){ ENTERO VARholarey }"
+
+         codigoFuente = "¬METODO¬ DECIMAL (DECIMAL VARh | ENTERO VARi ) {\n" +
+                 "\n" +
+                 "DECIMAL VALh}"
      )
      lexico.analizar()
      val sintaxis = AnalizadorSintactico(lexico.listaTokens)
-     print(sintaxis.esUnidadDeCompilacion())
+     println(sintaxis.esUnidadDeCompilacion())
      print(sintaxis.listaErrores)
  }

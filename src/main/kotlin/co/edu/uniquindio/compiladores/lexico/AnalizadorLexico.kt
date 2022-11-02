@@ -71,7 +71,6 @@ class AnalizadorLexico(var codigoFuente:String) {
             if(esPalabraReservadaRetorno()) continue
             if(esIdentificadorDeMetodo()) continue
             if(esIdentificadorVariable()) continue
-            if(esAgrupador()) continue
             if(esInicioSentencia()) continue
             if(esFinSentencia()) continue
             if(esPalabraReservadaVacio()) continue
@@ -585,29 +584,6 @@ class AnalizadorLexico(var codigoFuente:String) {
             return true
         }
         //RI
-        return false
-    }
-
-    fun esAgrupador(): Boolean {
-        var lexema = ""
-        if (caracterActual == ':') {
-            var filaInicial = filaActual
-            var columnaInicial = columnaActual
-            var posicionInicial = posicionActual
-            lexema += caracterActual
-            obtenerSiguienteCaracter()
-
-            if (caracterActual == 'C') {
-                hacerBT(posicionInicial, filaInicial, columnaInicial)
-                return false
-            } else {
-                almacenarToken(
-                    lexema,
-                    Categoria.AGRUPADOR, filaInicial, columnaInicial
-                )
-                return true
-            }
-        }
         return false
     }
 
@@ -1168,35 +1144,31 @@ class AnalizadorLexico(var codigoFuente:String) {
     //Verifica si el identificador es de tipo constante
     fun esIdentificadorTipoConstantes(): Boolean {
         var lexema = ""
-        if (caracterActual == 'C') {
+        if (caracterActual == 'V') {
+
             var filaInicial = filaActual
             var columnaInicial = columnaActual
             var posicionInicial = posicionActual
+
             lexema += caracterActual
             obtenerSiguienteCaracter()
-            if (caracterActual == 'O') {
+
+            if (caracterActual == 'A') {
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
-                if (caracterActual == 'N') {
+                if (caracterActual == 'L') {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
-                    if (caracterActual == 'S') {
+                    while (caracterActual.isLetterOrDigit() && caracterActual != finCodigo) {
                         lexema += caracterActual
                         obtenerSiguienteCaracter()
-                        if (caracterActual == 'T') {
-                            lexema += caracterActual
-                            obtenerSiguienteCaracter()
-                            almacenarToken(
-                                lexema,
-                                Categoria.IDENTIFICADOR_VARIABLE_CONSTANTE,
-                                filaInicial,
-                                columnaInicial
-                            )
-                            return true
-                        } else {
-                            hacerBT(posicionInicial, filaInicial, columnaInicial)
-                            return false
-                        }
+                    }
+                    if (!caracterActual.isLetterOrDigit() || caracterActual != finCodigo) {
+                        almacenarToken(
+                            lexema,
+                            Categoria.IDENTIFICADOR_INMUTABLE, filaInicial, columnaInicial
+                        )
+                        return true
                     } else {
                         hacerBT(posicionInicial, filaInicial, columnaInicial)
                         return false
@@ -1205,11 +1177,11 @@ class AnalizadorLexico(var codigoFuente:String) {
                     hacerBT(posicionInicial, filaInicial, columnaInicial)
                     return false
                 }
+
             } else {
                 hacerBT(posicionInicial, filaInicial, columnaInicial)
                 return false
             }
-
         }
         //RI
         return false
@@ -1483,22 +1455,22 @@ class AnalizadorLexico(var codigoFuente:String) {
     //Verifica si es la palabra reservada de retorno
     fun esPalabraReservadaRetorno(): Boolean {
         var lexema = ""
-        if (caracterActual == '>') {
+        if (caracterActual == 'R') {
             var filaInicial = filaActual
             var columnaInicial = columnaActual
             var posicionInicial = posicionActual
             lexema += caracterActual
             obtenerSiguienteCaracter()
-            if (caracterActual == 'b') {
+            if (caracterActual == 'E') {
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
-                if (caracterActual == 'a') {
+                if (caracterActual == 'T') {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
-                    if (caracterActual == 'c') {
+                    if (caracterActual == 'O') {
                         lexema += caracterActual
                         obtenerSiguienteCaracter()
-                        if (caracterActual == 'k') {
+                        if (caracterActual == 'R') {
                             lexema += caracterActual
                             obtenerSiguienteCaracter()
                             almacenarToken(
@@ -1665,20 +1637,27 @@ class AnalizadorLexico(var codigoFuente:String) {
             var posicionInicial = posicionActual
             lexema += caracterActual
             obtenerSiguienteCaracter()
-            if (caracterActual == 'i') {
+            if (caracterActual == 'A') {
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
-                if (caracterActual == 'd') {
+                if (caracterActual == 'C') {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
-                    if (caracterActual == 'e') {
+                    if (caracterActual == 'I') {
                         lexema += caracterActual
                         obtenerSiguienteCaracter()
-                        almacenarToken(
-                            lexema,
-                            Categoria.PALABRA_RESERVADA_VACIO, filaInicial, columnaInicial
-                        )
-                        return true
+                        if (caracterActual == 'O') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            almacenarToken(
+                                lexema,
+                                Categoria.PALABRA_RESERVADA_VACIO, filaInicial, columnaInicial
+                            )
+                            return true
+                        } else {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
 
                     } else {
                         hacerBT(posicionInicial, filaInicial, columnaInicial)
@@ -1854,7 +1833,7 @@ class AnalizadorLexico(var codigoFuente:String) {
     //Verifica si el token es  la palabra reservada para imprimir
     fun esPalabraReservadaImpresion(): Boolean {
         var lexema = ""
-        if (caracterActual == 'M') {
+        if (caracterActual == 'I') {
 
             var filaInicial = filaActual
             var columnaInicial = columnaActual
@@ -1863,22 +1842,22 @@ class AnalizadorLexico(var codigoFuente:String) {
             lexema += caracterActual
             obtenerSiguienteCaracter()
 
-            if (caracterActual == 'o') {
+            if (caracterActual == 'M') {
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
-                if (caracterActual == 'n') {
+                if (caracterActual == 'P') {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
-                    if (caracterActual == 't') {
+                    if (caracterActual == 'R') {
                         lexema += caracterActual
                         obtenerSiguienteCaracter()
-                        if (caracterActual == 'r') {
+                        if (caracterActual == 'I') {
                             lexema += caracterActual
                             obtenerSiguienteCaracter()
-                            if (caracterActual == 'e') {
+                            if (caracterActual == 'M') {
                                 lexema += caracterActual
                                 obtenerSiguienteCaracter()
-                                if (caracterActual == 'r') {
+                                if (caracterActual == 'E') {
                                     lexema += caracterActual
                                     obtenerSiguienteCaracter()
                                     almacenarToken(

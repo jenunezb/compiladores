@@ -59,7 +59,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
     }
 
     /**
-     * <Funcion>::=IdentificadorMetodo":"[<listaParametros>]":"<TipoRetorno><BloqueSentencias>
+     * <Funcion>::=IdentificadorMetodo"<TipoRetorno> ( <ListaParametros> ) <BloqueSentencias>
      */
     fun esFuncion(): Funcion? {
 
@@ -96,18 +96,17 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
                             }
 
                         }else{
-                            reportarError(mensaje = "Falta la llave de apertura")
+                            reportarError(mensaje = "Falta parentesis cerrado ")
                         }
 
                     } else {
-                        reportarError(mensaje = "Falta el agrupador")
+                        reportarError(mensaje = "Falta parentesis abierto")
                     }
 
                 } else {
-                    reportarError(mensaje = "Falta el agrupador")
+                    reportarError(mensaje = "Falta el tipo de retorno o está mal escrito")
                 }
             }
-
             return null
         }
 
@@ -144,16 +143,19 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
      *
      */
     fun esListaParametros(): ArrayList<Parametro> {
+
         var listaParametros = ArrayList<Parametro>()
         var parametro = esParametro()
         if (parametro != null) {
             while (parametro != null) {
+
                 listaParametros.add(parametro)
-                if (tokenActual.categoria == Categoria.SEPARADORES) {
+                if (tokenActual.categoria == Categoria.SEPARADOR) {
                     obtenerSiguienteToken()
                     parametro = esParametro()
-                } else {
-                    if (tokenActual.categoria != Categoria.AGRUPADOR) {
+                }
+                else {
+                    if (tokenActual.categoria != Categoria.PARENTESISCERRADO) {
                         reportarError(mensaje = "Falta un separador en la lista de parametros")
                     }
                     break
@@ -187,6 +189,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
      * <Parametro>::=<TipoDato>IdentificadorVariable
      */
     fun esParametro(): Parametro? {
+
         var tipoDato = esTipoDato()
         if (tipoDato != null) {
             obtenerSiguienteToken()
@@ -290,10 +293,6 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
         if (sentencia != null) {
             return sentencia
         }
-        sentencia = esDeclaracionVariable()
-        if (sentencia != null) {
-            return sentencia
-        }
         sentencia = esRetorno()
         if (sentencia != null) {
             return sentencia
@@ -320,7 +319,14 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
         if (sentencia != null) {
             return sentencia
         }
-
+        var inmutable = esVariableInmutable()
+        if(inmutable!=null){
+            return inmutable
+        }
+        var mutable = esVariableMutable()
+        if(mutable!=null){
+            return mutable
+        }
 
         return null
     }
@@ -329,8 +335,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
      * <Decision>::=SI<ExpresionLogica><BloqueSentencia>[NO<BloqueSentencia>]
      */
     fun esDecision(): Decision? {
-
-        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA_DESCICIONES && (tokenActual.lexema == "SI")) {
+        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA_DESCICIONES && (tokenActual.lexema == "YY")) {
             obtenerSiguienteToken()
             val expresion = esExpresionLogica()
             if (expresion == null) {
@@ -362,6 +367,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
 
         }
         return null
+return null
     }
 
     /**
@@ -373,10 +379,12 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
         if (ciclo != null) {
             return ciclo
         }
-        ciclo = esCicloRun()
+        /**
+         * ciclo = esCicloRun()
         if (ciclo != null) {
-            return ciclo
+        return ciclo
         }
+         */
 
         return null
     }
@@ -408,48 +416,51 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
     /**
      * <CicloRum>::=run<varibaleMutable><ExpresionLogica><IncrementoDecremento><BloqueSentencia>
      */
-    fun esCicloRun(): Ciclo? {
-        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA_CICLOS && tokenActual.lexema == "run") {
-            obtenerSiguienteToken()
-            val tipoCiclo = tokenActual.lexema
-            if (tokenActual.categoria == Categoria.AGRUPADOR) {
-                obtenerSiguienteToken()
-            } else {
-                reportarError(mensaje = "No se encontro el agrupador")
-            }
-            val declaracionVar = esDeclaracionVariable()
-            if (declaracionVar is VariableMutable && declaracionVar != null) {
-                val expresion = esExpresionLogica()
-                if (expresion == null) {
-                    reportarError(mensaje = "Hay un error en la condición")
-                    while (!(tokenActual.categoria == Categoria.OPERADOR_INCREMENTO || tokenActual.categoria == Categoria.OPERADOR_DECREMENTO) && tokenActual.categoria != Categoria.FIN_CODIGO) {
-                        obtenerSiguienteToken()
-                    }
-                }
-                val incrementoDecremento = esIncrementoDecremento()
-                if (incrementoDecremento != null) {
-                    if (tokenActual.categoria == Categoria.AGRUPADOR) {
-                        obtenerSiguienteToken()
-                    } else {
-                        reportarError(mensaje = "Falta el agrupador final")
-                    }
-                    val bloque = esBloqueSentencias()
-                    if (bloque != null) {
-                        return CicloRun(declaracionVar!!, expresion, incrementoDecremento, bloque)
-                    }
-
-                } else {
-                    reportarError(mensaje = "Hay un error en el incrmento o decremento")
-                }
-
-            } else {
-                reportarError(mensaje = "Declaración invalida del la variable")
-            }
-
-        }
-
-        return null
+    /**
+     * fun esCicloRun(): Ciclo? {
+    if (tokenActual.categoria == Categoria.PALABRA_RESERVADA_CICLOS && tokenActual.lexema == "run") {
+    obtenerSiguienteToken()
+    val tipoCiclo = tokenActual.lexema
+    if (tokenActual.categoria == Categoria.AGRUPADOR) {
+    obtenerSiguienteToken()
+    } else {
+    reportarError(mensaje = "No se encontro el agrupador")
     }
+    val declaracionVar = esDeclaracionVariable()
+    if (declaracionVar is VariableMutable && declaracionVar != null) {
+    val expresion = esExpresionLogica()
+    if (expresion == null) {
+    reportarError(mensaje = "Hay un error en la condición")
+    while (!(tokenActual.categoria == Categoria.OPERADOR_INCREMENTO || tokenActual.categoria == Categoria.OPERADOR_DECREMENTO) && tokenActual.categoria != Categoria.FIN_CODIGO) {
+    obtenerSiguienteToken()
+    }
+    }
+    val incrementoDecremento = esIncrementoDecremento()
+    if (incrementoDecremento != null) {
+    if (tokenActual.categoria == Categoria.AGRUPADOR) {
+    obtenerSiguienteToken()
+    } else {
+    reportarError(mensaje = "Falta el agrupador final")
+    }
+    val bloque = esBloqueSentencias()
+    if (bloque != null) {
+    return CicloRun(declaracionVar!!, expresion, incrementoDecremento, bloque)
+    }
+
+    } else {
+    reportarError(mensaje = "Hay un error en el incrmento o decremento")
+    }
+
+    } else {
+    reportarError(mensaje = "Declaración invalida del la variable")
+    }
+
+    }
+
+    return null
+    }
+      */
+
 
     /**
      * <Impresion>::=PalabraReservadaImprimir ":"<ListaAgumentos":"
@@ -458,7 +469,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
 
         if (tokenActual.categoria == Categoria.PALABRA_RESERVADA_IMPRIMIR) {
             obtenerSiguienteToken()
-            if (tokenActual.categoria == Categoria.AGRUPADOR) {
+            if (tokenActual.categoria == Categoria.PARENTESISABIERTO) {
                 obtenerSiguienteToken()
             } else {
                 reportarError(mensaje = "Falta el agrupador inicial")
@@ -466,7 +477,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
 
             val expresion = esExpresion()
 
-            if (tokenActual.categoria == Categoria.AGRUPADOR) {
+            if (tokenActual.categoria == Categoria.PARENTESISCERRADO) {
                 obtenerSiguienteToken()
             } else {
                 reportarError(mensaje = "Falta el agrupador Final")
@@ -477,7 +488,6 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
                 reportarError(mensaje = "Falta simbolo terminal")
             }
             return Impresion(expresion)
-
 
         }
         return null
@@ -497,7 +507,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
 
                 if (tokenActual.categoria == Categoria.PALABRA_RESERVADA_LEER) {
                     obtenerSiguienteToken()
-                    if (tokenActual.categoria == Categoria.AGRUPADOR) {
+                    if (tokenActual.categoria == Categoria.PARENTESISABIERTO) {
                         obtenerSiguienteToken()
                     } else {
                         reportarError(mensaje = "Falta el agrupador inicial")
@@ -505,11 +515,11 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
                     val expCadena = esExpresionCadena()
                     if (expCadena == null) {
                         reportarError(mensaje = "Hay un error en la condición")
-                        while (!(tokenActual.categoria == Categoria.AGRUPADOR) && tokenActual.categoria != Categoria.FIN_CODIGO) {
+                        while (!(tokenActual.categoria == Categoria.PARENTESISCERRADO) && tokenActual.categoria != Categoria.FIN_CODIGO) {
                             obtenerSiguienteToken()
                         }
                     }
-                    if (tokenActual.categoria == Categoria.AGRUPADOR) {
+                    if (tokenActual.categoria == Categoria.PARENTESISCERRADO) {
                         obtenerSiguienteToken()
                     } else {
                         reportarError(mensaje = "Falta el agrupador final")
@@ -569,7 +579,6 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
                     return null
                 }
 
-
             }
 
         }
@@ -578,47 +587,21 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
 
 
     /**
-     * <DeclaracionVariable>::=<VariableMutable>|<VariableInmutable>
+     * <VariableInmutable>::=<tipoDato><listaIdentificadores>
      */
-    fun esDeclaracionVariable(): DeclaracionVariable? {
+    fun esVariableInmutable():VariableInmutable? {
         var posicionInicial = posicionActual
         var tipoDato = esTipoDato()
         if (tipoDato != null) {
             obtenerSiguienteToken()
-            var declaVar: DeclaracionVariable? = esVariableInmutable(tipoDato)
-            if (declaVar != null) {
-                return declaVar
+            if (tokenActual.categoria == Categoria.IDENTIFICADOR_INMUTABLE) {
+                var idenInmutable = tokenActual
+                //El parametro esta bien escrito
+                obtenerSiguienteToken()
+                return VariableInmutable(tipoDato,idenInmutable)
             } else {
-                declaVar = esVariableMutable(tipoDato)
-                if (declaVar != null) {
-                    return declaVar
-                } else {
-                    hacerBT(posicionInicial)
-                    return null
-                }
-            }
-        }
-        return null
-    }
-
-    /**
-     * <VariableInmutable>::=<tipoDato>:CONS<listaIdentificadores>
-     */
-    fun esVariableInmutable(tipoDato: Token): DeclaracionVariable? {
-
-        if (tokenActual.categoria == Categoria.IDENTIFICADOR_VARIABLE_CONSTANTE) {
-            obtenerSiguienteToken()
-            val listaIdentificadores = esListaIdentificadoresVariables()
-            if (listaIdentificadores != null) {
-
-                if (tokenActual.categoria == Categoria.TERMINAL) {
-                    obtenerSiguienteToken()
-                } else {
-                    reportarError(mensaje = "Falta el simbolo terminal")
-                }
-                return VariableInmutable(tipoDato, listaIdentificadores)
-            } else {
-                reportarError(mensaje = "Especificar como minino un identificador de variable")
+                hacerBT(posicionInicial)
+                return null
             }
         }
         return null
@@ -627,20 +610,18 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
     /**
      * <VariableMutable>::=<tipoDato><listaIdentificadores>
      */
-    fun esVariableMutable(tipoDato: Token): DeclaracionVariable? {
-
-        var posicionInicial = posicionActual
-        val listaIdentificadores = esListaIdentificadoresVariables()
-        if (listaIdentificadores != null) {
-            if (tokenActual.categoria == Categoria.TERMINAL) {
+    fun esVariableMutable():VariableMutable? {
+        var tipoDato = esTipoDato()
+        if (tipoDato != null) {
+            obtenerSiguienteToken()
+            if (tokenActual.categoria == Categoria.IDENTIFICADOR_VARIABLE) {
+                var idenMutable = tokenActual
+                //El parametro esta bien escrito
                 obtenerSiguienteToken()
+                return VariableMutable(tipoDato,idenMutable)
             } else {
-                reportarError(mensaje = "Falta el simbolo terminal")
+                reportarError(mensaje = "El identificador de variable no corresponde a un identificador valido")
             }
-            return VariableMutable(tipoDato, listaIdentificadores)
-        } else {
-            hacerBT(posicionInicial)
-            return null
         }
         return null
     }
@@ -656,7 +637,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
             while (identificador.categoria == Categoria.IDENTIFICADOR_VARIABLE) {
                 listaIdentificadores.add(identificador)
                 obtenerSiguienteToken()
-                if (tokenActual.categoria == Categoria.SEPARADORES) {
+                if (tokenActual.categoria == Categoria.SEPARADOR) {
                     obtenerSiguienteToken()
                     identificador = tokenActual
                 } else {
@@ -683,7 +664,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
         while (argumento != null) {
             listaArgumentos.add(argumento)
             print(tokenActual.lexema)
-            if (tokenActual.categoria == Categoria.SEPARADORES) {
+            if (tokenActual.categoria == Categoria.SEPARADOR) {
                 obtenerSiguienteToken()
                 argumento = esExpresion()
             } else {
@@ -781,14 +762,14 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
             var identMetodo = tokenActual
             obtenerSiguienteToken()
 
-            if (tokenActual.categoria == Categoria.AGRUPADOR) {
+            if (tokenActual.categoria == Categoria.PARENTESISABIERTO) {
                 obtenerSiguienteToken()
             } else {
                 reportarError(mensaje = "Falta el agrupador inicial")
             }
             var listaArgumentos = esListaArgumentos()
 
-            if (tokenActual.categoria == Categoria.AGRUPADOR) {
+            if (tokenActual.categoria == Categoria.PARENTESISCERRADO) {
                 obtenerSiguienteToken()
             } else {
                 reportarError(mensaje = "Falta un agrupador final")
@@ -855,7 +836,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
         var expresion = esExpresion()
         while (expresion != null) {
             listaDatos.add(expresion)
-            if (tokenActual.categoria == Categoria.SEPARADORES) {
+            if (tokenActual.categoria == Categoria.SEPARADOR) {
                 obtenerSiguienteToken()
                 expresion = esExpresion()
                 if (expresion == null) {
@@ -959,13 +940,13 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
     fun esExpresionAritmetica(): ExpresionAritmetica? {
 
         var posicionInicial = posicionActual
-        if (tokenActual.categoria == Categoria.AGRUPADOR) {
+        if (tokenActual.categoria == Categoria.PARENTESISABIERTO) {
             obtenerSiguienteToken()
             val expA1 = esExpresionAritmetica()
 
             if (expA1 != null) {
 
-                if (tokenActual.categoria == Categoria.AGRUPADOR) {
+                if (tokenActual.categoria == Categoria.PARENTESISCERRADO) {
                     obtenerSiguienteToken()
                     if (tokenActual.categoria == Categoria.OPERADOR_ARITMETICO) {
                         var oPa = tokenActual
@@ -1194,14 +1175,14 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
         if (tokenActual.categoria == Categoria.PALABRA_IDENTIFICADOR_MATEMATICO) {
             val fnMatematica = tokenActual
             obtenerSiguienteToken()
-            if (tokenActual.categoria == Categoria.AGRUPADOR) {
+            if (tokenActual.categoria == Categoria.PARENTESISABIERTO) {
                 obtenerSiguienteToken()
             } else {
                 reportarError("Falta el agrupador inicial")
             }
             val valorNumerico = esValorNumerico()
             if (valorNumerico != null) {
-                if (tokenActual.categoria == Categoria.AGRUPADOR) {
+                if (tokenActual.categoria == Categoria.PARENTESISCERRADO) {
                     obtenerSiguienteToken()
                 } else {
                     reportarError("Falta el agrupador final")

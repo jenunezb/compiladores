@@ -18,9 +18,7 @@ class  Aplicacion : Application() {
         primaryStage?.scene = scene
         primaryStage?.title = "Mi compilador"
         primaryStage?.show()
-
     }
-
     companion object{
         @JvmStatic
         fun main( args:Array<String>){

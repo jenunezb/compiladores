@@ -29,7 +29,7 @@ package co.edu.uniquindio.compiladores.lexico
         PARENTESISABIERTO,
         PARENTESISCERRADO,
         FIN_CODIGO,
-
+        IDENTIFICADOR_INMUTABLE,
         TERMINAL,
         CARACTER_ESCAPE,
         IDENTIFICADOR_VARIABLE_CONSTANTE,
@@ -40,7 +40,6 @@ package co.edu.uniquindio.compiladores.lexico
         PALABRA_RESERVADA_RETORNO,
         IDENTIFICADOR_DE_METODOS,
         IDENTIFICADOR_VARIABLE,
-        AGRUPADOR,
         LLAVE_INICIO,
         LLAVE_FIN,
         PALABRA_RESERVADA_VACIO,
@@ -51,9 +50,5 @@ package co.edu.uniquindio.compiladores.lexico
         PALABRA_IDENTIFICADOR_MATEMATICO,
         PALABRA_RESERVADA_ROMPER,
         PALABRA_RESERVADA_CONTINUAR,
-
-
-
         IDENTIFICADOR_PUNTO,
-        SEPARADORES
     }
