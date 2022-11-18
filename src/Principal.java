@@ -1,0 +1,1 @@
+ import javax.swing.JOptionPane; public class Principal{public static void main(String[] args){int VARa;VARa=sumar(100,9);;JOptionPane.showMessageDialog( null,"El resultado de la suma es : "+VARa);}static int sumar(int VARb,int VARc){return VARb + VARc;}}

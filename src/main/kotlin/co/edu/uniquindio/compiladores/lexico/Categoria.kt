@@ -5,7 +5,6 @@ package co.edu.uniquindio.compiladores.lexico
         DECIMAL,
         CADENA,
         CARACTER,
-        BOOLEAN,
         OPERADOR_ARITMETICO,
         OPERADOR_INCREMENTO,
         OPERADOR_DECREMENTO,
@@ -35,7 +34,7 @@ package co.edu.uniquindio.compiladores.lexico
         IDENTIFICADOR_VARIABLE_CONSTANTE,
         PALABRA_RESERVADA_CICLOS,
         PALABRA_RESERVADA_INICIO_CLASE,
-        PALABRA_RESERVADA_DESCICIONES,
+        PALABRA_RESERVADA_DECISIONES,
         PALABRA_RESERVADA_FIN_CLASE,
         PALABRA_RESERVADA_RETORNO,
         IDENTIFICADOR_DE_METODOS,
@@ -51,4 +50,5 @@ package co.edu.uniquindio.compiladores.lexico
         PALABRA_RESERVADA_ROMPER,
         PALABRA_RESERVADA_CONTINUAR,
         IDENTIFICADOR_PUNTO,
+        AGRUPADOR
     }

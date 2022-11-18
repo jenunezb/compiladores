@@ -10,7 +10,7 @@ class UnidadDeCompilacion(var listaFunciones: ArrayList<Funcion>) {
     }
 
     fun getArbolVisual(): TreeItem<String> {
-        var raiz = TreeItem<String>("Unidad de Compilacion")
+        var raiz = TreeItem("Unidad de Compilacion")
 
         for (f in listaFunciones) {
             raiz.children.add(f.getArbolVisual())

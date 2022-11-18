@@ -20,6 +20,7 @@ class AnalizadorLexico(var codigoFuente:String) {
                 columna
             )
         )
+
     fun hacerBT(posicionInicial: Int, filaInicial: Int, columnaInicial: Int) {
 
         posicionActual = posicionInicial
@@ -65,7 +66,7 @@ class AnalizadorLexico(var codigoFuente:String) {
             if(esPalabraReservadaClase())continue
             if(esIdentificadorTipoCiclos()) continue
             if(esPalabraReservadaInicioDeClase()) continue
-            if(esUnaPalabraReservadaCondicional()) continue
+            if(esPalabraReservadaCondicional()) continue
             if(esIdentificadorTipoConstantes()) continue
             if(esPalabraReservadaFinDeClase()) continue
             if(esPalabraReservadaRetorno()) continue
@@ -247,7 +248,6 @@ class AnalizadorLexico(var codigoFuente:String) {
 
     }
 
-
     fun esBoolean(): Boolean {
         var lexema = ""
 
@@ -263,7 +263,7 @@ class AnalizadorLexico(var codigoFuente:String) {
                 obtenerSiguienteCaracter()
                 almacenarToken(
                     lexema,
-                    Categoria.BOOLEAN, filaInicial, columnaInicial
+                    Categoria.IDENTIFICADOR_TIPO_BOOLEANO, filaInicial, columnaInicial
                 )
                 return true
             } else {
@@ -280,7 +280,7 @@ class AnalizadorLexico(var codigoFuente:String) {
             if (caracterActual == 'S') {
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
-                almacenarToken(lexema, Categoria.BOOLEAN, filaInicial, columnaInicial)
+                almacenarToken(lexema, Categoria.OPERADOR_LOGICO, filaInicial, columnaInicial)
                 return true
             } else {
                 hacerBT(posicionInicial, filaInicial, columnaInicial)
@@ -343,7 +343,6 @@ class AnalizadorLexico(var codigoFuente:String) {
     fun esOperadorAritmetico(): Boolean {
         var lexema = ""
         if (caracterActual == '+' || caracterActual == '-' || caracterActual == '*' || caracterActual == '/'|| caracterActual == '%') {
-            System.out.println(caracterActual)
             var filaInicial = filaActual
             var columnaInicial = columnaActual
             var posicionInicial = posicionActual
@@ -885,7 +884,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
     fun esIdentificadorTipoCadena(): Boolean {
         var lexema = ""
         if (caracterActual == 'C') {
@@ -942,7 +940,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
     fun esIdentificadorTipoBooleano(): Boolean {
         var lexema = ""
         if (caracterActual == 'B') {
@@ -999,7 +996,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
     fun esIdentificadorTipoDecimal(): Boolean {
         var lexema = ""
         if (caracterActual == 'D') {
@@ -1067,7 +1063,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
     fun esIdentificadorTipoCaracter(): Boolean {
         var lexema = ""
         if (caracterActual == 'C') {
@@ -1139,8 +1134,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
-
     //Verifica si el identificador es de tipo constante
     fun esIdentificadorTipoConstantes(): Boolean {
         var lexema = ""
@@ -1186,7 +1179,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
     fun esIdentificadorTipoCiclos(): Boolean {
         var lexema = ""
         if (caracterActual == 'r' || caracterActual == 'R') {
@@ -1253,6 +1245,9 @@ class AnalizadorLexico(var codigoFuente:String) {
         return false
     }
 
+    /**
+     * PALABRAS RESERVADAS
+     */
     //Verifica palabra reservada inicio de clase
     fun esPalabraReservadaInicioDeClase(): Boolean {
         var lexema = ""
@@ -1307,9 +1302,8 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
     //Verifica si una palabra reservada condicional
-    fun esUnaPalabraReservadaCondicional(): Boolean {
+    fun esPalabraReservadaCondicional(): Boolean {
         var lexema = ""
         if (caracterActual == 'S' || caracterActual == 'N') {
 
@@ -1323,11 +1317,9 @@ class AnalizadorLexico(var codigoFuente:String) {
                 if (caracterActual == 'I') {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
-                    lexema += caracterActual
-                    obtenerSiguienteCaracter()
                     almacenarToken(
                         lexema,
-                        Categoria.PALABRA_RESERVADA_DESCICIONES, filaInicial, columnaInicial
+                        Categoria.PALABRA_RESERVADA_DECISIONES, filaInicial, columnaInicial
                     )
                     return true
                 } else {
@@ -1346,7 +1338,7 @@ class AnalizadorLexico(var codigoFuente:String) {
                         obtenerSiguienteCaracter()
                         almacenarToken(
                             lexema,
-                            Categoria.PALABRA_RESERVADA_DESCICIONES, filaInicial, columnaInicial
+                            Categoria.PALABRA_RESERVADA_DECISIONES, filaInicial, columnaInicial
                         )
                         return true
                     } else {
@@ -1362,7 +1354,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
     fun esPalabraReservadaClase(): Boolean {
         var lexema = ""
         if (caracterActual == 'C') {
@@ -1473,11 +1464,25 @@ class AnalizadorLexico(var codigoFuente:String) {
                         if (caracterActual == 'R') {
                             lexema += caracterActual
                             obtenerSiguienteCaracter()
-                            almacenarToken(
-                                lexema,
-                                Categoria.PALABRA_RESERVADA_RETORNO, filaInicial, columnaInicial
-                            )
-                            return true
+                            if (caracterActual == 'N') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+                                if (caracterActual == 'O') {
+                                    lexema += caracterActual
+                                    obtenerSiguienteCaracter()
+                                    almacenarToken(
+                                        lexema,
+                                        Categoria.PALABRA_RESERVADA_RETORNO, filaInicial, columnaInicial
+                                    )
+                                    return true
+                                } else {
+                                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                    return false
+                                }
+                            } else {
+                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                return false
+                            }
                         } else {
                             hacerBT(posicionInicial, filaInicial, columnaInicial)
                             return false
@@ -1490,7 +1495,7 @@ class AnalizadorLexico(var codigoFuente:String) {
                     hacerBT(posicionInicial, filaInicial, columnaInicial)
                     return false
                 }
-            } else {
+            }else {
                 hacerBT(posicionInicial, filaInicial, columnaInicial)
                 return false
             }
@@ -1498,7 +1503,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
     //Verifica si es identificador Método
     fun esIdentificadorDeMetodo(): Boolean {
         var lexema = ""
@@ -1532,7 +1536,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
     //Verifica si el token es un identificador de variable
     fun esIdentificadorVariable(): Boolean {
         var lexema = ""
@@ -1579,7 +1582,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         return false
     }
     //Indica el caracter que limita por ambos extremos un bloque de agrupacion
-
     //Indica el caracter que inicia el bloque de sentencia
     fun esInicioSentencia(): Boolean {
         var lexema = ""
@@ -1603,7 +1605,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         }
         return false
     }
-
     //Indica el caracter que finaliza el bloque de sentencia
     fun esFinSentencia(): Boolean {
         var lexema = ""
@@ -1627,7 +1628,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         }
         return false
     }
-
     //Indica la palabra reservada para el tipo de retorno void
     fun esPalabraReservadaVacio(): Boolean {
         var lexema = ""
@@ -1675,7 +1675,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
     //Verifica si el token es un identificador de arreglo
     fun esIdentificadorArreglo(): Boolean {
         var lexema = ""
@@ -1720,7 +1719,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
     //Metodos auxiliares
     fun isMayuscula(letra: Char): Boolean {
         if (letra == 'A' || letra == 'B' || letra == 'C' || letra == 'D' ||
@@ -1734,7 +1732,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         }
         return false
     }
-
     fun esIdentificadorLectura(): Boolean {
         var lexema = ""
         if (caracterActual == 'L') {
@@ -1829,7 +1826,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
     //Verifica si el token es  la palabra reservada para imprimir
     fun esPalabraReservadaImpresion(): Boolean {
         var lexema = ""
@@ -1893,7 +1889,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
     fun esPalabraReservadaFuncionMatematica(): Boolean {
         var lexema = ""
         if (caracterActual == 'F') {
@@ -1929,7 +1924,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
     fun esPalabraIdentificadorMatematico(): Boolean {
         var lexema = ""
         if (caracterActual == 'A' || caracterActual == 'C' || caracterActual == 'S') {
@@ -2016,8 +2010,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         //RI
         return false
     }
-
-
     fun esPalabraReservadaRomper(): Boolean {
         var lexema = ""
         if (caracterActual == 'C') {
@@ -2071,8 +2063,6 @@ class AnalizadorLexico(var codigoFuente:String) {
         return false
 
     }
-
-
     fun esPalabraReservadaContinuar(): Boolean {
         var lexema = ""
         if (caracterActual == 'R') {

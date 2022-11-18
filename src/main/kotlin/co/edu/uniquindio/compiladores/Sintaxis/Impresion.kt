@@ -1,28 +1,11 @@
 package co.edu.uniquindio.compiladores.Sintaxis
 
 import co.edu.uniquindio.compiladores.lexico.Error
+import co.edu.uniquindio.compiladores.lexico.Token
 import javafx.scene.control.TreeItem
 
-class Impresion(var expresion: Expresion?) : Sentencia() {
-
+class Impresion() : Sentencia() {
     override fun getArbolVisual(): TreeItem<String> {
-
-        var raiz = TreeItem<String>("Impresion")
-        if (expresion != null) {
-            raiz.children.add(expresion!!.getArbolVisual())
-            return raiz
-        }
-
-
-
-        return raiz
+        return TreeItem<String>("Imprime")
     }
-
-    override fun getJavaCode(): String {
-
-        var cadena = "JOptionPane.showMessageDialog( null," + expresion!!.getJavaCode()+");"
-        return cadena
-    }
-
-
 }

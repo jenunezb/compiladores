@@ -14,7 +14,6 @@ class CicloRam(var expresionLogica: ExpresionLogica?, var listaSentencias: Array
             raiz.children.add(expresionLogica!!.getArbolVisual())
         }
 
-
         var raizSentencia = TreeItem<String>("Lista de Sentencias")
         for (p in listaSentencias) {
 

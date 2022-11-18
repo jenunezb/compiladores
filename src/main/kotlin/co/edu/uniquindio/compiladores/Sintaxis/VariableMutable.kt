@@ -3,7 +3,7 @@ package co.edu.uniquindio.compiladores.Sintaxis
 import co.edu.uniquindio.compiladores.lexico.Token
 import javafx.scene.control.TreeItem
 
-class VariableMutable(var tipoDato: Token, var nombreMutable:Token):Sentencia() {
+open class VariableMutable(var tipoDato: Token, var nombreMutable:Token):Sentencia() {
     override fun toString(): String {
         return "Mutable(tipoDato=$tipoDato, nombreParametros=$nombreMutable)"
     }

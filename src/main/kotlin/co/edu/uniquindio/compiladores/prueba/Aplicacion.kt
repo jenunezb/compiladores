@@ -4,12 +4,10 @@
  fun main(){
      val lexico = AnalizadorLexico(
 
-         codigoFuente = "¬METODO¬ DECIMAL (DECIMAL VARh | ENTERO VARi ) {\n" +
-                 "\n" +
-                 "DECIMAL VALh}"
+         codigoFuente = "SI VARa → VARb"
      )
      lexico.analizar()
      val sintaxis = AnalizadorSintactico(lexico.listaTokens)
-     println(sintaxis.esUnidadDeCompilacion())
+     println(sintaxis.esDecision())
      print(sintaxis.listaErrores)
  }

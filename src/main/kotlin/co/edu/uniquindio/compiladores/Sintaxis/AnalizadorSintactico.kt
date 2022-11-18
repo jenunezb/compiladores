@@ -59,7 +59,7 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
     }
 
     /**
-     * <Funcion>::=IdentificadorMetodo"<TipoRetorno> ( <ListaParametros> ) <BloqueSentencias>
+     * <Funcion>::=IdentificadorMetodo <TipoRetorno> "(" <ListaParametros> ")" <BloqueSentencias>
      */
     fun esFuncion(): Funcion? {
 
@@ -184,7 +184,6 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
         }
     }
 
-
     /**
      * <Parametro>::=<TipoDato>IdentificadorVariable
      */
@@ -272,7 +271,6 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
     fun esSentencia(): Sentencia? {
 
         var sentencia: Sentencia? = esDecision()
-
         if (sentencia != null) {
             return sentencia
         }
@@ -332,41 +330,29 @@ class AnalizadorSintactico(var listaTokens: ArrayList<Token>) {
     }
 
     /**
-     * <Decision>::=SI<ExpresionLogica><BloqueSentencia>[NO<BloqueSentencia>]
+     * <Decision>::=SI<ExpresionRelacional><BloqueSentencia>[NO<BloqueSentencia>]
      */
     fun esDecision(): Decision? {
-        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA_DESCICIONES && (tokenActual.lexema == "YY")) {
+        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA_DECISIONES && (tokenActual.lexema == "SI")) {
             obtenerSiguienteToken()
-            val expresion = esExpresionLogica()
-            if (expresion == null) {
-                reportarError(mensaje = "Hay un error en la condición")
-                while (!(tokenActual.categoria == Categoria.LLAVE_INICIO) && tokenActual.categoria != Categoria.FIN_CODIGO) {
-                    obtenerSiguienteToken()
-                }
-            }
-            val bloqueYes = esBloqueSentencias()
-
-            if (bloqueYes != null) {
-                if (tokenActual.categoria == Categoria.PALABRA_RESERVADA_DESCICIONES && (tokenActual.lexema == "Not")) {
-                    obtenerSiguienteToken()
-                    val bloqueNot = esBloqueSentencias()
-
-                    if (bloqueNot != null) {
-
-                        return Decision(expresion, bloqueYes, bloqueNot)
-                    } else {
-                        reportarError(mensaje = "Falta bloque de sentencias Falsas")
+            if (tokenActual.categoria == Categoria.PARENTESISABIERTO) {
+                obtenerSiguienteToken()
+                val expresion = esExpresionRelacional()
+                if (expresion == null) {
+                    reportarError(mensaje = "Hay un error en la condición")
+                } else{
+                    if (tokenActual.categoria == Categoria.PARENTESISCERRADO) {
+                        obtenerSiguienteToken()
+                        return Decision(expresion)
+                }else{
+                        reportarError(mensaje = "Falta parentesis cerrrado")
                     }
-                } else {
-
-                    return Decision(expresion, bloqueYes, null)
-                }
-            } else {
-                reportarError(mensaje = "El bloque de sentencias verdaderas es obligatorio")
             }
 
-        }
-        return null
+            }else{
+                reportarError(mensaje = "Falta parentesis abierto")
+            }
+            }
 return null
     }
 
@@ -474,9 +460,11 @@ return null
             } else {
                 reportarError(mensaje = "Falta el agrupador inicial")
             }
-
-            val expresion = esExpresion()
-
+            if(tokenActual.categoria==Categoria.IDENTIFICADOR_VARIABLE ||tokenActual.categoria==Categoria.CADENA ){
+                obtenerSiguienteToken()
+            }else {
+                reportarError(mensaje = "La variable no fue asignada")
+            }
             if (tokenActual.categoria == Categoria.PARENTESISCERRADO) {
                 obtenerSiguienteToken()
             } else {
@@ -487,8 +475,7 @@ return null
             } else {
                 reportarError(mensaje = "Falta simbolo terminal")
             }
-            return Impresion(expresion)
-
+            return Impresion()
         }
         return null
     }
@@ -584,7 +571,6 @@ return null
         }
         return null
     }
-
 
     /**
      * <VariableInmutable>::=<tipoDato><listaIdentificadores>
@@ -703,12 +689,11 @@ return null
         return null
     }
 
-
     /**
      * <valorLogico>::=On|Off
      */
     fun esValorLogico(): ValorLogico? {
-        if (tokenActual.categoria == Categoria.BOOLEAN) {
+        if (tokenActual.categoria == Categoria.OPERADOR_LOGICO) {
             var valor = tokenActual
             obtenerSiguienteToken()
             return ValorLogico(valor)
@@ -717,38 +702,24 @@ return null
     }
 
     /**
-     *<Retorno>::=palResRetorno IdentArreglo|palResRetorno<valorNumerico>|palResRetorno<Expresion>|palResRetorno void|palResRetorno caracter
+     *<Retorno>::=
      */
     fun esRetorno(): Retorno? {
-
         if (tokenActual.categoria == Categoria.PALABRA_RESERVADA_RETORNO) {
             obtenerSiguienteToken()
-            if (tokenActual.categoria == Categoria.IDENTIFICADOR_ARREGLO || tokenActual.categoria == Categoria.CARACTER || tokenActual.categoria == Categoria.PALABRA_RESERVADA_VACIO) {
-                val token = tokenActual
+            var tipodato=esTipoDato()
+            if(tipodato!=null){
+                var nombre=tokenActual
                 obtenerSiguienteToken()
-                if (tokenActual.categoria == Categoria.TERMINAL) {
-                    obtenerSiguienteToken()
-                } else {
-                    reportarError(mensaje = "Falta el terminal")
+                if (tokenActual.categoria==Categoria.TERMINAL){
+                    return Retorno(nombre)
+                }else{
+                    reportarError(mensaje = "Falta el símbolo terminal")
+                    return null
                 }
-                return Retorno(token, token.fila, token.columna)
-            } else {
-                var fila = tokenActual.fila
-                var colu = tokenActual.columna
-                val expresion = esExpresion()
-                if (expresion == null) {
-                    reportarError(mensaje = "Hay un error en la expresion")
-                    while (!(tokenActual.categoria == Categoria.TERMINAL) && tokenActual.categoria != Categoria.FIN_CODIGO) {
-                        obtenerSiguienteToken()
-                    }
-                }
-                if (tokenActual.categoria == Categoria.TERMINAL) {
-                    obtenerSiguienteToken()
-
-                } else {
-                    reportarError(mensaje = "Falta el terminal")
-                }
-                return Retorno(expresion, fila, colu)
+            }else{
+                reportarError(mensaje = "el dato ingresado no se puede retornar")
+                return null
             }
         }
         return null
@@ -889,13 +860,13 @@ return null
     fun esExpresionLogica(): ExpresionLogica? {
 
         var posicionInicial = posicionActual
-        if (tokenActual.categoria == Categoria.OPERADOR_LOGICO && (tokenActual.lexema == "|")) {
+        if (tokenActual.categoria == Categoria.OPERADOR_LOGICO && (tokenActual.lexema == "Y")) {
             val opLogico = tokenActual
             obtenerSiguienteToken()
             var expLo1 = esExpresionLogica()
             if (expLo1 != null) {
 
-                if (tokenActual.categoria == Categoria.OPERADOR_LOGICO && (tokenActual.lexema != "|")) {
+                if (tokenActual.categoria == Categoria.OPERADOR_LOGICO && (tokenActual.lexema != "Y")) {
                     val opBin = tokenActual
                     obtenerSiguienteToken()
                     val expLo2 = esExpresionLogica()
@@ -937,57 +908,25 @@ return null
      *                          <valorNumerico>|<valorNumerico>operadorAritmetico<ExpresionAritmetica>
      *
      */
+
     fun esExpresionAritmetica(): ExpresionAritmetica? {
 
-        var posicionInicial = posicionActual
-        if (tokenActual.categoria == Categoria.PARENTESISABIERTO) {
+        if(tokenActual.categoria==Categoria.DECIMAL || tokenActual.categoria==Categoria.ENTERO){
             obtenerSiguienteToken()
-            val expA1 = esExpresionAritmetica()
-
-            if (expA1 != null) {
-
-                if (tokenActual.categoria == Categoria.PARENTESISCERRADO) {
+            if(tokenActual.categoria==Categoria.OPERADOR_ARITMETICO){
+                obtenerSiguienteToken()
+                if(tokenActual.categoria==Categoria.DECIMAL || tokenActual.categoria==Categoria.ENTERO){
                     obtenerSiguienteToken()
-                    if (tokenActual.categoria == Categoria.OPERADOR_ARITMETICO) {
-                        var oPa = tokenActual
+                    if(tokenActual.categoria==Categoria.OPERADOR_ARITMETICO){
                         obtenerSiguienteToken()
-
-                        val exPA2 = esExpresionAritmetica()
-                        if (exPA2 != null) {
-
-                            return ExpresionAritmetica(expA1, oPa, exPA2)
-                        }
-                    } else {
-                        return ExpresionAritmetica(expA1)
+                        return esExpresionAritmetica()
+                    }else if(tokenActual.categoria==Categoria.TERMINAL){
+                        return ExpresionAritmetica()
                     }
-                } else {
-                    reportarError(mensaje = "Falta el agrupador final")
                 }
-            } else {
-                reportarError(mensaje = "Expresión Aritmetica no especificada")
-            }
-        } else {
-
-            var valorNum = esValorNumerico()
-            if (valorNum != null) {
-                if (tokenActual.categoria == Categoria.OPERADOR_ARITMETICO) {
-                    var oPa = tokenActual
-                    obtenerSiguienteToken()
-                    val exPA = esExpresionAritmetica()
-                    if (exPA != null) {
-
-                        return ExpresionAritmetica(valorNum, oPa, exPA)
-                    }
-                } else {
-                    return ExpresionAritmetica(valorNum)
-                }
-            } else {
-
-                hacerBT(posicionInicial)
-                return null
+            }else{
             }
         }
-        hacerBT(posicionInicial)
         return null
     }
 
@@ -995,35 +934,26 @@ return null
      * <ExpresionRelacional>::=":"<ExpresionAritmetica>OperadorRelacional<ExpresionAritmetica>|<valorLogico>
      */
     fun esExpresionRelacional(): ExpresionRelacional? {
-        var posicionInicial = posicionActual
-
-        val expreArit1 = esExpresionAritmetica()
-        if (expreArit1 != null) {
-            if (tokenActual.categoria == Categoria.OPERADOR_RELACIONAL) {
-                val operador = tokenActual
+            if(tokenActual.categoria==Categoria.IDENTIFICADOR_VARIABLE){
+                var tokenA=tokenActual
                 obtenerSiguienteToken()
-                val expreArit2 = esExpresionAritmetica()
-                if (expreArit2 != null) {
-
-                    return ExpresionRelacional(expreArit1, operador, expreArit2, tokenActual.fila, tokenActual.columna)
-                } else {
-                    reportarError(mensaje = "La ota expresión aritmetica es obligatoria")
+                if(tokenActual.categoria==Categoria.OPERADOR_RELACIONAL){
+                    var tokenRel=tokenActual
+                    obtenerSiguienteToken()
+                    if(tokenActual.categoria==Categoria.IDENTIFICADOR_VARIABLE){
+                        var tokenB=tokenActual
+                        obtenerSiguienteToken()
+                       return ExpresionRelacional(tokenA,tokenB,tokenRel)
+                    }else{
+                        reportarError("Debe declarar la variable")
+                    }
+                }else{
+                    reportarError("Debe declarar el operador relacional")
                 }
-            } else {
-                hacerBT(posicionInicial)
-                return null
-            }
-        } else {
-            var valorlogico = esValorLogico()
-            if (valorlogico != null) {
-                return ExpresionRelacional(valorlogico)
-            } else {
 
-                hacerBT(posicionInicial)
-                return null
+            }else{
+                reportarError("Debe declarar la variable")
             }
-        }
-        hacerBT(posicionInicial)
         return null
     }
 

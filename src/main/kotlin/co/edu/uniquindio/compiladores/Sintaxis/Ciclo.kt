@@ -6,7 +6,9 @@ import javafx.scene.control.TreeItem
 open class Ciclo():Sentencia() {
 
   override fun getArbolVisual(): TreeItem<String> {
-        return TreeItem("Ciclo")
+      return TreeItem<String>("Ciclo")
     }
-
+    override fun toString(): String {
+        return "Ciclo"
+    }
 }
