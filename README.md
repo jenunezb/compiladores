@@ -4,7 +4,7 @@ Copy the template, paste it to your GitHub README and edit! -->
 
 # Project Title
 
-Final project for the Building AI course
+proyecto final 
 
 ## Summary
 
